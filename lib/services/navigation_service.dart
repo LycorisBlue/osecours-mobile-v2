@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:osecours/screens/emergency/index.dart';
+import 'package:osecours/screens/login/index.dart';
+import 'package:osecours/screens/registration/index.dart';
 
 class Routes {
   static final navigatorKey = GlobalKey<NavigatorState>();
@@ -12,11 +14,10 @@ class Routes {
 
   static Map<String, Widget Function(BuildContext)> get routes => {
     home: (context) => const Text('Hello World!'),
-    registration: (context) => const Text('Hello World!'),
-    login: (context) => const Text('Hello World!'),
-    otp: (context) => const Text('Hello World!'), // Paramètre géré différemment
-    emergency: (context) => const Text('Hello World!'),
-
+    registration: (context) => const SignUpScreen(),
+    login: (context) => const LoginScreen(),
+    otp: (context) => const Text('Hello World!'),
+    emergency: (context) => const EmergencyScreen(),
   };
 
   // Navigation standard avec animation personnalisée

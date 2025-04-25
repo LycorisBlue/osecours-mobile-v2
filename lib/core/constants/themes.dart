@@ -1,5 +1,6 @@
-// lib/theme/app_theme.dart
+// lib/core/theme/app_theme.dart
 import 'package:flutter/material.dart';
+import 'package:osecours/core/constants/colors.dart';
 
 class AppTheme {
   // Constantes pour les styles réutilisables
@@ -145,40 +146,40 @@ class AppTheme {
     );
   }
 
-  /// Thème clair basé sur les couleurs de ARTCI
+  /// Thème clair basé sur les couleurs de l'application
   static ThemeData get lightTheme => _baseTheme(
     ColorScheme.light(
-      primary: const Color(0xFF003087), // Bleu foncé ARTCI
-      onPrimary: const Color(0xFFFFFFFF), // Blanc pour contraste
-      secondary: const Color(0xFFF7941E), // Orange vif comme accent
-      onSecondary: const Color(0xFFFFFFFF),
+      primary: AppColors.primary, // Rouge défini dans AppColors
+      onPrimary: AppColors.white, // Blanc pour contraste
+      secondary: Colors.blue, // Bleu comme couleur secondaire
+      onSecondary: AppColors.white,
       background: const Color(0xFFF5F5F5), // Gris clair pour fond
-      onBackground: const Color(0xFF000000), // Noir pour texte
-      surface: const Color(0xFFFFFFFF), // Blanc pour surfaces
-      onSurface: const Color(0xFF000000), // Noir pour texte sur surfaces
+      onBackground: AppColors.text, // Noir/gris foncé pour texte
+      surface: AppColors.white, // Blanc pour surfaces
+      onSurface: AppColors.text, // Noir/gris foncé pour texte sur surfaces
       surfaceVariant: const Color(0xFFE0E0E0), // Gris pour variations
       onSurfaceVariant: const Color(0xFF333333), // Gris foncé pour texte secondaire
-      error: const Color(0xFFF7941E), // Orange vif pour erreurs
-      onError: const Color(0xFFFFFFFF), // Blanc sur erreurs
+      error: AppColors.error, // Rouge/orange pour erreurs
+      onError: AppColors.white, // Blanc sur erreurs
     ),
     Brightness.light,
   );
 
-  /// Thème sombre basé sur les couleurs de ARTCI
+  /// Thème sombre basé sur les couleurs de l'application
   static ThemeData get darkTheme => _baseTheme(
     ColorScheme.dark(
-      primary: const Color(0xFF003087), // Bleu foncé ARTCI
-      onPrimary: const Color(0xFFFFFFFF),
-      secondary: const Color(0xFFF7941E), // Orange vif comme accent
-      onSecondary: const Color(0xFFFFFFFF),
+      primary: AppColors.primary, // Rouge défini dans AppColors
+      onPrimary: AppColors.white,
+      secondary: Colors.blue, // Bleu comme couleur secondaire
+      onSecondary: AppColors.white,
       background: const Color(0xFF1C2526), // Fond sombre
-      onBackground: const Color(0xFFFFFFFF), // Texte blanc
+      onBackground: AppColors.white, // Texte blanc
       surface: const Color(0xFF2A2F31), // Surface sombre
-      onSurface: const Color(0xFFFFFFFF), // Texte blanc sur surfaces
+      onSurface: AppColors.white, // Texte blanc sur surfaces
       surfaceVariant: const Color(0xFF3A3F41), // Variation sombre
       onSurfaceVariant: const Color(0xFFB0BEC5), // Gris clair pour texte secondaire
-      error: const Color(0xFFF7941E), // Orange vif pour erreurs
-      onError: const Color(0xFFFFFFFF),
+      error: AppColors.error, // Rouge/orange pour erreurs
+      onError: AppColors.white,
     ),
     Brightness.dark,
   );

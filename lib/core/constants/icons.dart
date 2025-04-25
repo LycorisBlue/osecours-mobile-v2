@@ -58,6 +58,9 @@ class IconManager {
     'lock_outline': Icons.lock_outline,
     'school': Icons.school,
     'insert_chart': Icons.insert_chart,
+    'fire_truck': Icons.fire_truck,
+    'local_police': Icons.local_police,
+    'medical_services': Icons.medical_services,
   };
 
   static const Map<String, IconData> _cupertinoIcons = {
@@ -113,6 +116,9 @@ class IconManager {
     'lock_outline': CupertinoIcons.lock,
     'school': CupertinoIcons.book,
     'insert_chart': CupertinoIcons.chart_bar,
+    'fire_truck': CupertinoIcons.car_fill, // Alternative iOS car il n'existe pas d'équivalent direct
+    'local_police': CupertinoIcons.shield_fill, // Alternative iOS
+    'medical_services': CupertinoIcons.bandage, // Alternative iOS
   };
 
   /// Récupère l'icône en fonction de la plateforme
