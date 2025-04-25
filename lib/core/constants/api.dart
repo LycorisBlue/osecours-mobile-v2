@@ -16,14 +16,14 @@ class ApiConfig {
    * Utilisée pour les tests d'intégration et la validation
    * avant le déploiement en production.
    */
-  static const String testBaseUrl = 'https://artci.api-medev.com';
+  static const String testBaseUrl = 'http://46.202.170.228:3000';
 
   /**
    * URL de base pour l'environnement de production.
    * Utilisée pour l'application en production avec
    * les données réelles.
    */
-  static const String prodBaseUrl = 'https://api.railtrack.ci/api/v1';
+  static const String prodBaseUrl = 'https://api.osecours.ci/api/v1';
 
   /**
    * Détermine l'URL de base à utiliser en fonction de l'environnement.
@@ -53,6 +53,7 @@ abstract class AuthEndpoints {
   static const String refreshToken = '/auth/refresh-token';
   static const String logout = '/auth/logout';
   static const String userDetails = '/auth/me';
+  static const String register = '/citizen/register';
 }
 
 /**
@@ -61,17 +62,9 @@ abstract class AuthEndpoints {
  * des codes à usage unique.
  */
 abstract class OtpEndpoints {
-  static const String request = '/otp/request';
-  static const String verify = '/otp/verify';
-}
-
-/**
- * Endpoints relatifs aux opérations citoyens.
- * Contient les chemins d'accès pour la gestion des
- * comptes citoyens.
- */
-abstract class CitoyenEndpoints {
-  static const String register = '/citoyen/register';
+  static const String request = '/citizen/otp-request';
+  static const String verify = '/citizen/verify-otp';
+  static const String resend = '/citizen/otp-request';
 }
 
 /**
@@ -80,23 +73,45 @@ abstract class CitoyenEndpoints {
  * notifications utilisateur.
  */
 abstract class NotificationEndpoints {
-  static const String count = '/notification/count';
-  static const String list = '/notification/list';
-  static const String read = '/notification/read';
-  static const String readAll = '/notification/read-all';
+  static const String count = '/notifications/count';
+  static const String unread = '/notifications/unread';
+  static const String read = '/notifications/mark-read';
+  static const String readAll = '/notifications/mark-all-read';
+  static const String externalId = '/notifications/external-id';
 }
 
 /**
- * Endpoints relatifs aux signalements.
+ * Endpoints relatifs aux alertes.
  * Contient les chemins d'accès pour la gestion des
- * signalements créés par les citoyens.
+ * alertes créées par les utilisateurs.
  */
-abstract class SignalementEndpoints {
-  static const String create = '/signalement/create';
-  static const String userList = '/signalement/user-list';
-  static const String details = '/signalement/detail';
-  static const String uploadProofFile = '/signalement/upload-proof/file';
-  static const String uploadProofLink = '/signalement/upload-proof/link';
+abstract class AlertEndpoints {
+  static const String create = '/citizen/create-alert';
+  static const String latest = '/citizen/latest-alert';
+  static const String all = '/citizen/all-alerts';
+  static const String details = '/citizen/get-alert-details';
+  static const String geocode = '/citizen/reverse-geocode';
+}
+
+/**
+ * Endpoints relatifs aux numéros de confiance (safe numbers).
+ * Contient les chemins d'accès pour la gestion des
+ * numéros de contact à alerter en cas d'urgence.
+ */
+abstract class SafeNumberEndpoints {
+  static const String add = '/citizen/safe-numbers';
+  static const String delete = '/citizen/safe-numbers';
+  static const String get = '/citizen/safe-numbers';
+}
+
+/**
+ * Endpoints relatifs au profil utilisateur.
+ * Contient les chemins d'accès pour la gestion du
+ * profil de l'utilisateur.
+ */
+abstract class ProfileEndpoints {
+  static const String addEmail = '/citizen/add-email';
+  static const String addPicture = '/citizen/add-picture';
 }
 
 /**
@@ -118,6 +133,6 @@ class ApiHelper {
    * l'endpoint et un identifiant spécifique.
    */
   static String buildUrlWithId(String endpoint, String id) {
-    return '${ApiConfig.baseUrl}$endpoint$id';
+    return '${ApiConfig.baseUrl}$endpoint/$id';
   }
 }

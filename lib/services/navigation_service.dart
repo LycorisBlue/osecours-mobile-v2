@@ -5,10 +5,17 @@ class Routes {
   static final navigatorKey = GlobalKey<NavigatorState>();
 
   static const String home = '/';
-
+  static const String registration = '/registration';
+  static const String login = '/login';
+  static const String otp = '/otp';
+  static const String emergency = '/emergency';
 
   static Map<String, Widget Function(BuildContext)> get routes => {
     home: (context) => const Text('Hello World!'),
+    registration: (context) => const Text('Hello World!'),
+    login: (context) => const Text('Hello World!'),
+    otp: (context) => const Text('Hello World!'), // Paramètre géré différemment
+    emergency: (context) => const Text('Hello World!'),
 
   };
 
