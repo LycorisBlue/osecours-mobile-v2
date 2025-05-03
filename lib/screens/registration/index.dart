@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:osecours/screens/otp/index.dart';
 import '../../core/constants/colors.dart';
+import '../../services/auth_service.dart';
 import '../../services/navigation_service.dart';
 import 'controllers.dart';
 
@@ -153,24 +155,63 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Future<void> _handleSubmit() async {
-    setState(() => _isLoading = true);
+void _handleSubmit() async {
+    if (_controller.formKey.currentState!.validate()) {
+      setState(() => _isLoading = true);
 
-    final result = await _controller.handleSubmit();
+      final authService = AuthService();
 
-    setState(() => _isLoading = false);
+      try {
+        // Étape 1 : Inscription de l'utilisateur
+        final registrationResult = await authService.registerUser(
+          fullName: _controller.nameController.text,
+          phoneNumber: _controller.phoneController.text,
+        );
 
-    if (result['success']) {
-      // Navigation vers l'écran OTP avec les paramètres
-      if (mounted) {
-        Routes.navigateTo(Routes.emergency);
-      }
-    } else {
-      // Affichage du message d'erreur
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(result['message']), backgroundColor: AppColors.primary));
+        if (registrationResult['message'] == "Utilisateur enregistré avec succès") {
+          // Étape 2 : Génération de l'OTP
+          final otpResult = await authService.requestOtp(type: "create", phoneNumber: _controller.phoneController.text);
+
+          setState(() => _isLoading = false);
+
+          if (otpResult['message'] == "OTP créé avec succès et SMS envoyé avec succès.") {
+            // Navigation vers OTP avec le numéro de téléphone
+            if (mounted) {
+              // Utilisation du service de navigation pour rediriger vers l'écran OTP
+              Routes.push(OtpScreen(phoneNumber: _controller.phoneController.text));
+            }
+          } else {
+            // Affichage d'un message d'erreur
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(otpResult['message'] ?? 'Erreur lors de la création de l\'OTP'),
+                  backgroundColor: AppColors.primary,
+                ),
+              );
+            }
+          }
+        } else {
+          setState(() => _isLoading = false);
+
+          // Affichage d'un message d'erreur
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(registrationResult['message'] ?? 'Erreur lors de l\'inscription'),
+                backgroundColor: AppColors.primary,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        setState(() => _isLoading = false);
+
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Une erreur est survenue: ${e.toString()}'), backgroundColor: AppColors.primary));
+        }
       }
     }
   }
