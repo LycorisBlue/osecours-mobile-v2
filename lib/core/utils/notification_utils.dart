@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:osecours/core/constants/colors.dart';
-import 'package:osecours/core/constants/texts.dart';
+import 'package:osecours/core/constants/themes.dart';
 import 'package:osecours/core/utils/utils.dart';
 
 class NotificationInfos {

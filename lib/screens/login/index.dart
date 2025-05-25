@@ -1,6 +1,8 @@
 // lib/screens/login/index.dart
 import 'package:flutter/material.dart';
 import 'package:osecours/core/constants/colors.dart';
+import 'package:osecours/core/constants/sizes.dart';
+import 'package:osecours/core/constants/themes.dart';
 import 'package:osecours/screens/login/controllers.dart';
 import 'package:osecours/screens/otp/index.dart';
 import 'package:osecours/services/navigation_service.dart';
@@ -39,93 +41,109 @@ class _LoginScreenState extends State<LoginScreen> {
         return shouldExit ?? false;
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding: AppEdgeInsets.screen,
               child: Form(
                 key: _controller.formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 40),
+                    SizedBox(height: AppSizes.spacingXXLarge),
 
                     // Header
-                    const Text('Bonjour 👋', style: TextStyle(fontFamily: 'Poppins', fontSize: 26, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "Connectez-vous à O'secours",
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 14, color: Colors.black54),
-                    ),
-                    const SizedBox(height: 30),
+                    Text('Bonjour 👋', style: AppTextStyles.heading1),
+                    SizedBox(height: AppSizes.spacingSmall),
+                    Text("Connectez-vous à O'secours", style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textLight)),
+                    SizedBox(height: AppSizes.spacingXLarge),
 
                     // Numéro de téléphone
-                    const Text('Numéro de téléphone', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      controller: _controller.phoneController,
-                      focusNode: _controller.phoneFocusNode,
-                      keyboardType: TextInputType.phone,
-                      maxLength: 10,
-                      decoration: InputDecoration(
-                        hintText: 'Entrez votre numéro de téléphone',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                        prefixIcon: Icon(Icons.phone, color: _controller.isPhoneFocused ? AppColors.primary : Colors.grey),
-                        suffixIcon:
-                            _controller.phoneController.text.isNotEmpty
-                                ? Icon(
-                                  _controller.isPhoneValid ? Icons.check_circle : Icons.cancel,
-                                  color: _controller.isPhoneValid ? Colors.green : AppColors.primary,
-                                )
-                                : null,
+                    Text('Numéro de téléphone', style: AppTextStyles.label),
+                    SizedBox(height: AppSizes.spacingSmall),
+                    Container(
+                      height: AppSizes.inputHeight,
+                      child: TextFormField(
+                        controller: _controller.phoneController,
+                        focusNode: _controller.phoneFocusNode,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 10,
+                        style: AppTextStyles.bodyMedium,
+                        decoration: InputDecoration(
+                          hintText: 'Entrez votre numéro de téléphone',
+                          hintStyle: AppTextStyles.hint,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppSizes.radiusSmall)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
+                            borderSide: const BorderSide(color: Colors.black54),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
+                            borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: AppSizes.spacingMedium,
+                            vertical: AppSizes.spacingMedium,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.phone,
+                            color: _controller.isPhoneFocused ? AppColors.primary : Colors.grey,
+                            size: AppSizes.iconMedium,
+                          ),
+                          suffixIcon:
+                              _controller.phoneController.text.isNotEmpty
+                                  ? Icon(
+                                    _controller.isPhoneValid ? Icons.check_circle : Icons.cancel,
+                                    color: _controller.isPhoneValid ? Colors.green : AppColors.primary,
+                                    size: AppSizes.iconMedium,
+                                  )
+                                  : null,
+                          counterText: '', // Masquer le compteur de caractères
+                        ),
+                        validator: _controller.validatePhone,
                       ),
-                      validator: _controller.validatePhone,
                     ),
 
-                    const SizedBox(height: 30),
+                    SizedBox(height: AppSizes.spacingXLarge),
 
                     // Bouton Se connecter
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: AppSizes.buttonHeight,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _handleSubmit,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusButton)),
+                          padding: AppEdgeInsets.button,
                         ),
                         child:
                             _isLoading
-                                ? const CircularProgressIndicator(color: Colors.white)
-                                : const Text(
-                                  "Se connecter",
-                                  style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
+                                ? SizedBox(
+                                  width: AppSizes.iconMedium,
+                                  height: AppSizes.iconMedium,
+                                  child: const CircularProgressIndicator(color: AppColors.white, strokeWidth: 2),
+                                )
+                                : Text("Se connecter", style: AppTextStyles.buttonText),
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: AppSizes.spacingLarge),
 
                     // Liens supplémentaires
                     InkWell(
                       onTap: () {
                         Routes.navigateTo(Routes.emergency);
                       },
-                      child: const Text(
-                        "Numéros d'urgence",
-                        style: TextStyle(color: AppColors.primary, decoration: TextDecoration.underline, fontFamily: 'Poppins'),
-                      ),
+                      child: Text("Numéros d'urgence", style: AppTextStyles.link),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: AppSizes.spacingLarge),
                     InkWell(
                       onTap: () {
                         Routes.navigateTo(Routes.registration);
                       },
-                      child: const Text(
-                        "S'inscrire",
-                        style: TextStyle(color: AppColors.primary, decoration: TextDecoration.underline, fontFamily: 'Poppins'),
-                      ),
+                      child: Text("S'inscrire", style: AppTextStyles.link),
                     ),
                   ],
                 ),
@@ -138,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// Gère la soumission du formulaire de connexion
-void _handleSubmit() async {
+  void _handleSubmit() async {
     if (_controller.formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
@@ -153,7 +171,6 @@ void _handleSubmit() async {
         if (otpResult['message'] == "OTP créé avec succès et SMS envoyé avec succès.") {
           // Navigation vers OTP avec le numéro de téléphone
           if (mounted) {
-            // Utilisation du service de navigation pour rediriger vers l'écran OTP
             Routes.push(OtpScreen(phoneNumber: _controller.phoneController.text));
           }
         } else {
@@ -163,6 +180,9 @@ void _handleSubmit() async {
               SnackBar(
                 content: Text(otpResult['message'] ?? 'Erreur lors de l\'envoi de l\'OTP'),
                 backgroundColor: AppColors.primary,
+                behavior: SnackBarBehavior.floating,
+                margin: AppEdgeInsets.medium,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusSmall)),
               ),
             );
           }
@@ -171,9 +191,15 @@ void _handleSubmit() async {
         setState(() => _isLoading = false);
 
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Une erreur est survenue: ${e.toString()}'), backgroundColor: AppColors.primary));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Une erreur est survenue: ${e.toString()}'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+              margin: AppEdgeInsets.medium,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusSmall)),
+            ),
+          );
         }
       }
     }

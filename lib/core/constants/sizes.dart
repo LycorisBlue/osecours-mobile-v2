@@ -1,205 +1,226 @@
 // lib/core/constants/sizes.dart
 import 'package:flutter/material.dart';
-import '../responsive/responsive_manager.dart';
-import '../responsive/responsive_sizes.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-/// Classe de transition pour maintenir la compatibilité pendant la migration
-/// DÉPRÉCIÉ : Utilisez ResponsiveSizes à la place
-class AppSizes {
-  // Singleton pattern (maintenu pour compatibilité)
-  static final AppSizes _instance = AppSizes._internal();
-  factory AppSizes() => _instance;
-  AppSizes._internal();
-
-  // Variables d'état (conservées pour rétrocompatibilité)
-  static late double _screenWidth;
-  static late double _screenHeight;
-  static late double _blockSizeHorizontal;
-  static late double _blockSizeVertical;
-  static late double _safeAreaHorizontal;
-  static late double _safeAreaVertical;
-  static late double _safeBlockHorizontal;
-  static late double _safeBlockVertical;
-  static late bool _isInitialized;
-
-  /// Méthode d'initialisation (DÉPRÉCIÉ)
-  /// Utilisez ResponsiveManager().initialize(context) à la place
-  @Deprecated('Utilisez ResponsiveManager().initialize(context)')
-  static void initialize(BuildContext context) {
-    // Initialiser le nouveau système
-    ResponsiveManager().initialize(context);
-
-    // Maintenir l'ancien système pour compatibilité
-    MediaQueryData _mediaQueryData = MediaQuery.of(context);
-    _screenWidth = _mediaQueryData.size.width;
-    _screenHeight = _mediaQueryData.size.height;
-    _blockSizeHorizontal = _screenWidth / 100;
-    _blockSizeVertical = _screenHeight / 100;
-
-    _safeAreaHorizontal = _mediaQueryData.padding.left + _mediaQueryData.padding.right;
-    _safeAreaVertical = _mediaQueryData.padding.top + _mediaQueryData.padding.bottom;
-    _safeBlockHorizontal = (_screenWidth - _safeAreaHorizontal) / 100;
-    _safeBlockVertical = (_screenHeight - _safeAreaVertical) / 100;
-
-    _isInitialized = true;
-  }
-
-  static void _checkInitialization() {
-    assert(_isInitialized, 'AppSizes n\'est pas initialisé. Appelez AppSizes.initialize(context) dans votre widget racine.');
-  }
-
+/// Classe contenant toutes les tailles responsives pour l'application
+/// Utilise flutter_screenutil pour l'adaptation automatique
+abstract class AppSizes {
   // ===================
-  // MÉTHODES DÉPRÉCIÉES - Redirection vers le nouveau système
+  // TAILLES DE POLICE (RESPONSIVE)
   // ===================
 
-  /// DÉPRÉCIÉ : Utilisez ResponsiveSizes.widthPercent()
-  @Deprecated('Utilisez ResponsiveSizes.widthPercent()')
-  static double percentWidth(double percent) {
-    try {
-      return ResponsiveSizes.widthPercent(percent);
-    } catch (e) {
-      // Fallback vers l'ancien système si le nouveau n'est pas initialisé
-      _checkInitialization();
-      return _safeBlockHorizontal * percent;
-    }
-  }
+  /// Titre principal - très grand
+  static double get h1 => 26.5.sp;
 
-  /// DÉPRÉCIÉ : Utilisez ResponsiveSizes.heightPercent()
-  @Deprecated('Utilisez ResponsiveSizes.heightPercent()')
-  static double percentHeight(double percent) {
-    try {
-      return ResponsiveSizes.heightPercent(percent);
-    } catch (e) {
-      // Fallback vers l'ancien système si le nouveau n'est pas initialisé
-      _checkInitialization();
-      return _safeBlockVertical * percent;
-    }
-  }
+  /// Titre secondaire - grand
+  static double get h2 => 22.5.sp;
 
-  /// DÉPRÉCIÉ : Utilisez ResponsiveSizes.customFontSize()
-  @Deprecated('Utilisez ResponsiveSizes.customFontSize()')
-  static double scaledFontSize(double size) {
-    try {
-      return ResponsiveSizes.customFontSize(size);
-    } catch (e) {
-      // Fallback vers l'ancien système
-      _checkInitialization();
-      double scaleFactor = _screenWidth / 375;
-      return size * scaleFactor;
-    }
-  }
+  /// Titre tertiaire - moyen
+  static double get h3 => 18.5.sp;
 
-  /// DÉPRÉCIÉ : Utilisez ResponsiveManager().widthPercent() avec useSafeArea: false
-  @Deprecated('Utilisez ResponsiveManager().widthPercent() avec useSafeArea: false')
-  static double fullPercentWidth(double percent) {
-    try {
-      return ResponsiveManager().widthPercent(percent, useSafeArea: false);
-    } catch (e) {
-      _checkInitialization();
-      return _blockSizeHorizontal * percent;
-    }
-  }
+  /// Corps de texte - grand
+  static double get bodyLarge => 13.5.sp;
 
-  /// DÉPRÉCIÉ : Utilisez ResponsiveManager().heightPercent() avec useSafeArea: false
-  @Deprecated('Utilisez ResponsiveManager().heightPercent() avec useSafeArea: false')
-  static double fullPercentHeight(double percent) {
-    try {
-      return ResponsiveManager().heightPercent(percent, useSafeArea: false);
-    } catch (e) {
-      _checkInitialization();
-      return _blockSizeVertical * percent;
-    }
-  }
+  /// Corps de texte - moyen
+  static double get bodyMedium => 12.5.sp;
+
+  /// Corps de texte - petit
+  static double get bodySmall => 10.5.sp;
+
+  /// Texte de bouton
+  static double get buttonText => 16.sp;
+
+  /// Texte de caption/légende
+  static double get caption => 12.sp;
 
   // ===================
-  // NOUVELLES PROPRIÉTÉS - Redirection vers ResponsiveSizes
+  // ESPACEMENTS (RESPONSIVE)
   // ===================
 
-  /// Tailles de police adaptatives (NOUVEAU SYSTÈME)
-  static double get h1 => ResponsiveSizes.h1;
-  static double get h2 => ResponsiveSizes.h2;
-  static double get h3 => ResponsiveSizes.h3;
-  static double get bodyLarge => ResponsiveSizes.bodyLarge;
-  static double get bodyMedium => ResponsiveSizes.bodyMedium;
-  static double get bodySmall => ResponsiveSizes.bodySmall;
+  /// Espacement très petit
+  static double get spacingXSmall => 4.w;
 
-  /// Line heights (conservées)
-  static const double lineHeightLarge = ResponsiveSizes.lineHeightRelaxed;
-  static const double lineHeightMedium = ResponsiveSizes.lineHeightNormal;
-  static const double lineHeightSmall = ResponsiveSizes.lineHeightTight;
+  /// Espacement petit
+  static double get spacingSmall => 8.w;
 
-  /// Letter spacing (conservées)
-  static const double spacingTight = ResponsiveSizes.letterSpacingTight;
-  static const double spacingMedium = ResponsiveSizes.letterSpacingNormal;
-  static const double spacingWide = ResponsiveSizes.letterSpacingWide;
+  /// Espacement moyen
+  static double get spacingMedium => 12.w;
 
-  /// Paddings responsifs (NOUVEAU SYSTÈME)
-  static double get paddingSmall => ResponsiveSizes.spacingSmall;
-  static double get paddingMedium => ResponsiveSizes.spacingMedium;
-  static double get paddingLarge => ResponsiveSizes.spacingLarge;
-  static double get paddingXLarge => ResponsiveSizes.spacingXLarge;
+  /// Espacement grand
+  static double get spacingLarge => 16.w;
 
-  /// Border radius (NOUVEAU SYSTÈME)
-  static double get radiusSmall => ResponsiveSizes.radiusSmall;
-  static double get radiusMedium => ResponsiveSizes.radiusMedium;
+  /// Espacement très grand
+  static double get spacingXLarge => 22.w;
 
-  /// Élévations (NOUVEAU SYSTÈME)
-  static double get elevationSmall => ResponsiveSizes.elevationSmall;
+  /// Espacement énorme
+  static double get spacingXXLarge => 32.w;
 
   // ===================
-  // GETTERS POUR COMPATIBILITÉ
+  // PADDINGS SPÉCIFIQUES (RESPONSIVE)
   // ===================
 
-  /// DÉPRÉCIÉ : Utilisez ResponsiveManager().screenWidth
-  @Deprecated('Utilisez ResponsiveManager().screenWidth')
-  static double get screenWidth {
-    try {
-      return ResponsiveManager().screenWidth;
-    } catch (e) {
-      return _screenWidth;
-    }
-  }
+  /// Padding horizontal pour les écrans
+  static double get screenPaddingHorizontal => 20.w;
 
-  /// DÉPRÉCIÉ : Utilisez ResponsiveManager().screenHeight
-  @Deprecated('Utilisez ResponsiveManager().screenHeight')
-  static double get screenHeight {
-    try {
-      return ResponsiveManager().screenHeight;
-    } catch (e) {
-      return _screenHeight;
-    }
-  }
+  /// Padding vertical pour les écrans
+  static double get screenPaddingVertical => 24.h;
+
+  /// Padding horizontal pour les boutons
+  static double get buttonPaddingHorizontal => 16.w;
+
+  /// Padding vertical pour les boutons
+  static double get buttonPaddingVertical => 12.h;
+
+  /// Padding pour les cards
+  static double get cardPadding => 16.w;
+
+  // ===================
+  // HAUTEURS RESPONSIVES
+  // ===================
+
+  /// Hauteur des boutons
+  static double get buttonHeight => 48.h;
+
+  /// Hauteur des champs de texte
+  static double get inputHeight => 48.h;
+
+  /// Hauteur de l'AppBar
+  static double get appBarHeight => 56.h;
+
+  /// Hauteur des éléments de liste
+  static double get listItemHeight => 64.h;
+
+  // ===================
+  // BORDER RADIUS (RESPONSIVE)
+  // ===================
+
+  /// Border radius petit
+  static double get radiusSmall => 8.r;
+
+  /// Border radius moyen
+  static double get radiusMedium => 12.r;
+
+  /// Border radius grand
+  static double get radiusLarge => 16.r;
+
+  /// Border radius pour les boutons
+  static double get radiusButton => 8.r;
+
+  /// Border radius pour les cards
+  static double get radiusCard => 12.r;
+
+  // ===================
+  // ÉLÉVATIONS (RESPONSIVE)
+  // ===================
+
+  /// Élévation petite
+  static double get elevationSmall => 2.r;
+
+  /// Élévation moyenne
+  static double get elevationMedium => 4.r;
+
+  /// Élévation grande
+  static double get elevationLarge => 8.r;
+
+  // ===================
+  // TAILLES D'ICÔNES (RESPONSIVE)
+  // ===================
+
+  /// Icône petite
+  static double get iconSmall => 16.w;
+
+  /// Icône moyenne
+  static double get iconMedium => 24.w;
+
+  /// Icône grande
+  static double get iconLarge => 32.w;
+
+  // ===================
+  // CONSTANTES DE TEXTE (FIXES)
+  // ===================
+
+  /// Line heights (multiplicateurs - restent fixes)
+  static const double lineHeightTight = 1.2;
+  static const double lineHeightNormal = 1.4;
+  static const double lineHeightRelaxed = 1.6;
+
+  /// Letter spacing (restent fixes)
+  static const double letterSpacingTight = -0.25;
+  static const double letterSpacingNormal = 0.0;
+  static const double letterSpacingWide = 0.5;
 }
 
-// ===================
-// EXTENSIONS POUR FACILITER LA MIGRATION
-// ===================
+/// Classe utilitaire pour créer des EdgeInsets responsifs
+abstract class AppEdgeInsets {
+  // ===================
+  // PADDINGS UNIFORMES (RESPONSIVE)
+  // ===================
 
-extension ResponsiveExtensions on BuildContext {
-  /// Extension pour accéder au manager responsive
-  ResponsiveManager get responsive => ResponsiveManager();
-}
+  /// Padding très petit
+  static EdgeInsets get xSmall => EdgeInsets.all(AppSizes.spacingXSmall);
 
-// ===================
-// FONCTIONS GLOBALES POUR MIGRATION RAPIDE
-// ===================
+  /// Padding petit
+  static EdgeInsets get small => EdgeInsets.all(AppSizes.spacingSmall);
 
-/// Fonction globale pour faciliter la migration des tailles de police
-double responsiveFont(double baseSize, {double? minSize, double? maxSize}) {
-  return ResponsiveSizes.customFontSize(baseSize, minSize: minSize, maxSize: maxSize);
-}
+  /// Padding moyen
+  static EdgeInsets get medium => EdgeInsets.all(AppSizes.spacingMedium);
 
-/// Fonction globale pour faciliter la migration des espacements
-double responsiveSpacing(double baseSpacing, {double? minSpacing, double? maxSpacing}) {
-  return ResponsiveSizes.customSpacing(baseSpacing, minValue: minSpacing, maxValue: maxSpacing);
-}
+  /// Padding grand
+  static EdgeInsets get large => EdgeInsets.all(AppSizes.spacingLarge);
 
-/// Fonction globale pour faciliter la migration des pourcentages de largeur
-double responsiveWidth(double percent, {double? minValue, double? maxValue}) {
-  return ResponsiveSizes.widthPercent(percent, minValue: minValue, maxValue: maxValue);
-}
+  /// Padding très grand
+  static EdgeInsets get xLarge => EdgeInsets.all(AppSizes.spacingXLarge);
 
-/// Fonction globale pour faciliter la migration des pourcentages de hauteur
-double responsiveHeight(double percent, {double? minValue, double? maxValue}) {
-  return ResponsiveSizes.heightPercent(percent, minValue: minValue, maxValue: maxValue);
+  // ===================
+  // PADDINGS HORIZONTAUX (RESPONSIVE)
+  // ===================
+
+  /// Padding horizontal très petit
+  static EdgeInsets get horizontalXSmall => EdgeInsets.symmetric(horizontal: AppSizes.spacingXSmall);
+
+  /// Padding horizontal petit
+  static EdgeInsets get horizontalSmall => EdgeInsets.symmetric(horizontal: AppSizes.spacingSmall);
+
+  /// Padding horizontal moyen
+  static EdgeInsets get horizontalMedium => EdgeInsets.symmetric(horizontal: AppSizes.spacingMedium);
+
+  /// Padding horizontal grand
+  static EdgeInsets get horizontalLarge => EdgeInsets.symmetric(horizontal: AppSizes.spacingLarge);
+
+  /// Padding horizontal pour les écrans
+  static EdgeInsets get horizontalScreen => EdgeInsets.symmetric(horizontal: AppSizes.screenPaddingHorizontal);
+
+  // ===================
+  // PADDINGS VERTICAUX (RESPONSIVE)
+  // ===================
+
+  /// Padding vertical très petit
+  static EdgeInsets get verticalXSmall => EdgeInsets.symmetric(vertical: AppSizes.spacingXSmall);
+
+  /// Padding vertical petit
+  static EdgeInsets get verticalSmall => EdgeInsets.symmetric(vertical: AppSizes.spacingSmall);
+
+  /// Padding vertical moyen
+  static EdgeInsets get verticalMedium => EdgeInsets.symmetric(vertical: AppSizes.spacingMedium);
+
+  /// Padding vertical grand
+  static EdgeInsets get verticalLarge => EdgeInsets.symmetric(vertical: AppSizes.spacingLarge);
+
+  /// Padding vertical pour les écrans
+  static EdgeInsets get verticalScreen => EdgeInsets.symmetric(vertical: AppSizes.screenPaddingVertical);
+
+  // ===================
+  // PADDINGS POUR COMPOSANTS SPÉCIFIQUES (RESPONSIVE)
+  // ===================
+
+  /// Padding pour les boutons
+  static EdgeInsets get button =>
+      EdgeInsets.symmetric(horizontal: AppSizes.buttonPaddingHorizontal, vertical: AppSizes.buttonPaddingVertical);
+
+  /// Padding pour les cards
+  static EdgeInsets get card => EdgeInsets.all(AppSizes.cardPadding);
+
+  /// Padding pour l'écran entier
+  static EdgeInsets get screen =>
+      EdgeInsets.symmetric(horizontal: AppSizes.screenPaddingHorizontal, vertical: AppSizes.screenPaddingVertical);
 }

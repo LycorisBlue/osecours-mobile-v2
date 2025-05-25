@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:osecours/screens/emergency/index.dart';
 import 'package:osecours/screens/login/index.dart';
 import 'package:osecours/screens/registration/index.dart';
+import 'package:osecours/screens/home/index.dart';
 
 class Routes {
   static final navigatorKey = GlobalKey<NavigatorState>();
@@ -13,10 +14,10 @@ class Routes {
   static const String emergency = '/emergency';
 
   static Map<String, Widget Function(BuildContext)> get routes => {
-    home: (context) => const Text('Hello World!'),
+    home: (context) => HomeScreen(),
     registration: (context) => const SignUpScreen(),
     login: (context) => const LoginScreen(),
-    otp: (context) => const Text('Hello World!'),
+    otp: (context) => const Text('OTP Screen'), // TODO: Remplacer par le vrai OtpScreen
     emergency: (context) => const EmergencyScreen(),
   };
 
@@ -115,7 +116,7 @@ class Routes {
     // Vérification de sécurité pour la route
     final routeBuilder = routes[settings.name];
     if (routeBuilder == null) {
-      // Si la route n'existe pas, retourner à l'écran splash
+      // Si la route n'existe pas, retourner à l'écran d'accueil
       return MaterialPageRoute(builder: routes[home]!, settings: const RouteSettings(name: home));
     }
 
