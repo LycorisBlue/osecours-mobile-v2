@@ -1,186 +1,235 @@
 // lib/core/theme/app_theme.dart
 import 'package:flutter/material.dart';
-import 'package:osecours/core/constants/colors.dart';
+import '../responsive/responsive_sizes.dart';
 
 class AppTheme {
-  // Constantes pour les styles réutilisables
-  static const BorderRadius _defaultBorderRadius = BorderRadius.all(Radius.circular(8));
-  static const double _defaultElevation = 1.0;
-  static const double _defaultPadding = 16.0;
-  static const String _fontFamily = 'Poppins';
+  // Couleurs personnalisées (maintenues pour compatibilité)
+  static const Color primaryColor = Color(0xFFFF3333); // Rouge
+  static const Color textColor = Color(0xFF000000); // Noir
+  static const Color whiteColor = Color(0xFFFFFFFF); // Blanc
 
-  /// Crée un thème de base personnalisé avec un ColorScheme donné
-  static ThemeData _baseTheme(ColorScheme colorScheme, Brightness brightness) {
-    // Ajustement des couleurs pour les contrastes et l'accessibilité
-    final TextTheme textTheme = TextTheme(
-      displayLarge: TextStyle(fontSize: 34, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
-      displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: colorScheme.onSurface),
-      bodyLarge: TextStyle(fontSize: 16, color: colorScheme.onSurface),
-      bodyMedium: TextStyle(fontSize: 14, color: colorScheme.onSurface),
-      labelLarge: TextStyle(fontSize: 14, color: colorScheme.primary, fontWeight: FontWeight.w600),
-    ).apply(fontFamily: _fontFamily);
+  // Thème clair avec système responsive intégré
+  static ThemeData lightTheme = ThemeData(
+    fontFamily: 'Poppins',
+    useMaterial3: true,
+    colorScheme: const ColorScheme.light(primary: primaryColor, onPrimary: whiteColor, surface: whiteColor, onSurface: textColor),
 
-    return ThemeData(
-      // Propriétés globales
-      brightness: brightness,
-      colorScheme: colorScheme,
-      fontFamily: _fontFamily,
-      scaffoldBackgroundColor: colorScheme.background,
-      textTheme: textTheme,
-
-      // Card Theme
-      cardTheme: CardTheme(
-        color: colorScheme.surface,
-        elevation: _defaultElevation,
-        shape: const RoundedRectangleBorder(borderRadius: _defaultBorderRadius),
-        margin: const EdgeInsets.all(_defaultPadding),
+    // AppBar Theme avec hauteur responsive
+    appBarTheme: AppBarTheme(
+      backgroundColor: primaryColor,
+      elevation: 0,
+      centerTitle: true,
+      iconTheme: const IconThemeData(color: whiteColor),
+      toolbarHeight: ResponsiveSizes.appBarHeight, // Hauteur adaptative
+      titleTextStyle: TextStyle(
+        color: whiteColor,
+        fontSize: ResponsiveSizes.h3, // Taille adaptative
+        fontWeight: FontWeight.bold,
+        fontFamily: 'Poppins',
       ),
-
-      // Elevated Button Theme
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          shape: const RoundedRectangleBorder(borderRadius: _defaultBorderRadius),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        ).copyWith(
-          foregroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.disabled)) return colorScheme.onSurface.withOpacity(0.5);
-            return colorScheme.onPrimary;
-          }),
-          backgroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.disabled)) return colorScheme.primary.withOpacity(0.5);
-            return colorScheme.primary;
-          }),
-          elevation: WidgetStateProperty.all(_defaultElevation),
-        ),
-      ),
-
-      // Text Button Theme
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: colorScheme.primary,
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-      ),
-
-      // Outlined Button Theme
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: colorScheme.primary,
-          side: BorderSide(color: colorScheme.primary, width: 1.5),
-          shape: const RoundedRectangleBorder(borderRadius: _defaultBorderRadius),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        ),
-      ),
-
-      // Input Decoration Theme
-      inputDecorationTheme: InputDecorationTheme(
-        fillColor: colorScheme.surface,
-        filled: true,
-        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        border: OutlineInputBorder(
-          borderRadius: _defaultBorderRadius,
-          borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.2)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: _defaultBorderRadius,
-          borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.2)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: _defaultBorderRadius,
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: _defaultBorderRadius,
-          borderSide: BorderSide(color: colorScheme.error, width: 2),
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: _defaultBorderRadius,
-          borderSide: BorderSide(color: colorScheme.onSurface.withOpacity(0.1)),
-        ),
-      ),
-
-      // AppBar Theme
-      appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        elevation: 0,
-        centerTitle: true,
-        titleTextStyle: textTheme.titleLarge?.copyWith(fontSize: 20, fontWeight: FontWeight.w600, color: colorScheme.onSurface),
-      ),
-
-      // Divider Theme
-      dividerTheme: DividerThemeData(color: colorScheme.onSurface.withOpacity(0.2), thickness: 1, space: 1),
-
-      // Bottom Sheet Theme
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: colorScheme.surface,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-        elevation: 8,
-      ),
-
-      // Icon Theme
-      iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
-
-      // SnackBar Theme
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: colorScheme.error,
-        contentTextStyle: TextStyle(color: colorScheme.onError),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: _defaultBorderRadius),
-      ),
-
-      // Floating Action Button Theme
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        elevation: 4,
-        shape: const RoundedRectangleBorder(borderRadius: _defaultBorderRadius),
-      ),
-
-      // Dialog Theme
-      dialogTheme: DialogTheme(
-        backgroundColor: colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: _defaultBorderRadius),
-        elevation: 4,
-      ),
-    );
-  }
-
-  /// Thème clair basé sur les couleurs de l'application
-  static ThemeData get lightTheme => _baseTheme(
-    ColorScheme.light(
-      primary: AppColors.primary, // Rouge défini dans AppColors
-      onPrimary: AppColors.white, // Blanc pour contraste
-      secondary: Colors.blue, // Bleu comme couleur secondaire
-      onSecondary: AppColors.white,
-      background: const Color(0xFFF5F5F5), // Gris clair pour fond
-      onBackground: AppColors.text, // Noir/gris foncé pour texte
-      surface: AppColors.white, // Blanc pour surfaces
-      onSurface: AppColors.text, // Noir/gris foncé pour texte sur surfaces
-      surfaceVariant: const Color(0xFFE0E0E0), // Gris pour variations
-      onSurfaceVariant: const Color(0xFF333333), // Gris foncé pour texte secondaire
-      error: AppColors.error, // Rouge/orange pour erreurs
-      onError: AppColors.white, // Blanc sur erreurs
     ),
-    Brightness.light,
+
+    // Button Theme avec dimensions responsives
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primaryColor,
+        foregroundColor: whiteColor,
+        minimumSize: Size(
+          0, // Largeur flexible
+          ResponsiveSizes.buttonHeight, // Hauteur adaptative
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveSizes.buttonPaddingHorizontal, // Padding adaptatif
+          vertical: ResponsiveSizes.buttonPaddingVertical,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(ResponsiveSizes.radiusButton), // Border radius adaptatif
+        ),
+        textStyle: TextStyle(
+          fontSize: ResponsiveSizes.buttonText, // Taille de texte adaptative
+          fontWeight: FontWeight.w600,
+          fontFamily: 'Poppins',
+        ),
+      ),
+    ),
+
+    // Text Button Theme
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: primaryColor,
+        padding: EdgeInsets.symmetric(horizontal: ResponsiveSizes.spacingMedium, vertical: ResponsiveSizes.spacingSmall),
+        textStyle: TextStyle(fontSize: ResponsiveSizes.bodyMedium, fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
+      ),
+    ),
+
+    // Outlined Button Theme
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: primaryColor,
+        side: const BorderSide(color: primaryColor, width: 1.5),
+        minimumSize: Size(0, ResponsiveSizes.buttonHeight),
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveSizes.buttonPaddingHorizontal,
+          vertical: ResponsiveSizes.buttonPaddingVertical,
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveSizes.radiusButton)),
+        textStyle: TextStyle(fontSize: ResponsiveSizes.buttonText, fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
+      ),
+    ),
+
+    // Input Decoration Theme avec dimensions responsives
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: whiteColor,
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: ResponsiveSizes.spacingMedium, // Padding adaptatif
+        vertical: ResponsiveSizes.spacingMedium,
+      ),
+
+      // Bordures avec border radius adaptatif
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSmall),
+        borderSide: const BorderSide(color: Colors.black54),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSmall),
+        borderSide: const BorderSide(color: Colors.black54),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSmall),
+        borderSide: const BorderSide(color: primaryColor, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSmall),
+        borderSide: const BorderSide(color: Colors.red, width: 2),
+      ),
+
+      // Styles de texte adaptatifs
+      labelStyle: TextStyle(color: textColor, fontSize: ResponsiveSizes.bodyMedium, fontFamily: 'Poppins'),
+      hintStyle: TextStyle(color: textColor.withOpacity(0.6), fontSize: ResponsiveSizes.bodyMedium, fontFamily: 'Poppins'),
+      helperStyle: TextStyle(fontSize: ResponsiveSizes.bodySmall, fontFamily: 'Poppins'),
+      errorStyle: TextStyle(fontSize: ResponsiveSizes.bodySmall, color: Colors.red, fontFamily: 'Poppins'),
+    ),
+
+    // Text Theme avec tailles responsives
+    textTheme: TextTheme(
+      displayLarge: TextStyle(fontSize: ResponsiveSizes.h1, fontWeight: FontWeight.bold, color: textColor, fontFamily: 'Poppins'),
+      displayMedium: TextStyle(
+        fontSize: ResponsiveSizes.h2,
+        fontWeight: FontWeight.bold,
+        color: textColor,
+        fontFamily: 'Poppins',
+      ),
+      displaySmall: TextStyle(fontSize: ResponsiveSizes.h3, fontWeight: FontWeight.w600, color: textColor, fontFamily: 'Poppins'),
+      bodyLarge: TextStyle(fontSize: ResponsiveSizes.bodyLarge, color: textColor, fontFamily: 'Poppins'),
+      bodyMedium: TextStyle(fontSize: ResponsiveSizes.bodyMedium, color: textColor, fontFamily: 'Poppins'),
+      bodySmall: TextStyle(fontSize: ResponsiveSizes.bodySmall, color: textColor, fontFamily: 'Poppins'),
+      labelLarge: TextStyle(
+        fontSize: ResponsiveSizes.bodyMedium,
+        fontWeight: FontWeight.w500,
+        color: textColor,
+        fontFamily: 'Poppins',
+      ),
+    ),
+
+    // Card Theme avec dimensions responsives
+    cardTheme: CardTheme(
+      color: whiteColor,
+      elevation: ResponsiveSizes.elevationSmall, // Élévation adaptative
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(ResponsiveSizes.radiusCard), // Border radius adaptatif
+      ),
+      margin: EdgeInsets.all(ResponsiveSizes.spacingSmall), // Marge adaptative
+    ),
+
+    // List Tile Theme avec hauteur responsive
+    listTileTheme: ListTileThemeData(
+      contentPadding: EdgeInsets.symmetric(horizontal: ResponsiveSizes.spacingMedium, vertical: ResponsiveSizes.spacingSmall),
+      minVerticalPadding: ResponsiveSizes.spacingSmall,
+      style: ListTileStyle.list,
+      titleTextStyle: TextStyle(
+        fontSize: ResponsiveSizes.bodyMedium,
+        fontWeight: FontWeight.w500,
+        color: textColor,
+        fontFamily: 'Poppins',
+      ),
+      subtitleTextStyle: TextStyle(fontSize: ResponsiveSizes.bodySmall, color: textColor.withOpacity(0.7), fontFamily: 'Poppins'),
+    ),
+
+    // Dialog Theme avec dimensions responsives
+    dialogTheme: DialogTheme(
+      backgroundColor: whiteColor,
+      elevation: ResponsiveSizes.elevationMedium,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMedium)),
+      titleTextStyle: TextStyle(
+        fontSize: ResponsiveSizes.h3,
+        fontWeight: FontWeight.bold,
+        color: textColor,
+        fontFamily: 'Poppins',
+      ),
+      contentTextStyle: TextStyle(fontSize: ResponsiveSizes.bodyMedium, color: textColor, fontFamily: 'Poppins'),
+    ),
+
+    // Bottom Sheet Theme
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: whiteColor,
+      elevation: ResponsiveSizes.elevationLarge,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(ResponsiveSizes.radiusLarge))),
+    ),
+
+    // Snack Bar Theme avec dimensions responsives
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: primaryColor,
+      contentTextStyle: TextStyle(color: whiteColor, fontSize: ResponsiveSizes.bodyMedium, fontFamily: 'Poppins'),
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSmall)),
+      insetPadding: EdgeInsets.all(ResponsiveSizes.spacingMedium),
+    ),
+
+    // Floating Action Button Theme
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: primaryColor,
+      foregroundColor: whiteColor,
+      elevation: ResponsiveSizes.elevationMedium,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveSizes.radiusMedium)),
+    ),
+
+    // Icon Theme avec tailles responsives
+    iconTheme: IconThemeData(
+      color: textColor,
+      size: ResponsiveSizes.iconMedium, // Taille d'icône adaptative
+    ),
+
+    // Primary Icon Theme
+    primaryIconTheme: IconThemeData(color: whiteColor, size: ResponsiveSizes.iconMedium),
+
+    // Chip Theme
+    chipTheme: ChipThemeData(
+      backgroundColor: whiteColor,
+      deleteIconColor: primaryColor,
+      disabledColor: Colors.grey[300],
+      selectedColor: primaryColor.withOpacity(0.1),
+      secondarySelectedColor: primaryColor.withOpacity(0.2),
+      padding: EdgeInsets.symmetric(horizontal: ResponsiveSizes.spacingSmall, vertical: ResponsiveSizes.spacingXSmall),
+      labelPadding: EdgeInsets.symmetric(horizontal: ResponsiveSizes.spacingXSmall),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ResponsiveSizes.radiusSmall)),
+      labelStyle: TextStyle(fontSize: ResponsiveSizes.bodySmall, fontFamily: 'Poppins'),
+      secondaryLabelStyle: TextStyle(fontSize: ResponsiveSizes.bodySmall, color: whiteColor, fontFamily: 'Poppins'),
+    ),
+
+    // Divider Theme
+    dividerTheme: DividerThemeData(color: textColor.withOpacity(0.1), thickness: 1, space: ResponsiveSizes.spacingSmall),
+
+    // Tab Bar Theme
+    tabBarTheme: TabBarTheme(
+      labelColor: primaryColor,
+      unselectedLabelColor: textColor.withOpacity(0.6),
+      labelStyle: TextStyle(fontSize: ResponsiveSizes.bodyMedium, fontWeight: FontWeight.w600, fontFamily: 'Poppins'),
+      unselectedLabelStyle: TextStyle(fontSize: ResponsiveSizes.bodyMedium, fontWeight: FontWeight.w400, fontFamily: 'Poppins'),
+      indicator: UnderlineTabIndicator(borderSide: BorderSide(color: primaryColor, width: 2)),
+    ),
   );
 
-  /// Thème sombre basé sur les couleurs de l'application
-  static ThemeData get darkTheme => _baseTheme(
-    ColorScheme.dark(
-      primary: AppColors.primary, // Rouge défini dans AppColors
-      onPrimary: AppColors.white,
-      secondary: Colors.blue, // Bleu comme couleur secondaire
-      onSecondary: AppColors.white,
-      background: const Color(0xFF1C2526), // Fond sombre
-      onBackground: AppColors.white, // Texte blanc
-      surface: const Color(0xFF2A2F31), // Surface sombre
-      onSurface: AppColors.white, // Texte blanc sur surfaces
-      surfaceVariant: const Color(0xFF3A3F41), // Variation sombre
-      onSurfaceVariant: const Color(0xFFB0BEC5), // Gris clair pour texte secondaire
-      error: AppColors.error, // Rouge/orange pour erreurs
-      onError: AppColors.white,
-    ),
-    Brightness.dark,
-  );
+  // Thème sombre (maintenu pour compatibilité)
+  static ThemeData darkTheme = lightTheme;
 }

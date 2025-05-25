@@ -1,13 +1,17 @@
 // lib/core/constants/sizes.dart
 import 'package:flutter/material.dart';
+import '../responsive/responsive_manager.dart';
+import '../responsive/responsive_sizes.dart';
 
+/// Classe de transition pour maintenir la compatibilité pendant la migration
+/// DÉPRÉCIÉ : Utilisez ResponsiveSizes à la place
 class AppSizes {
-  // Singleton pattern
+  // Singleton pattern (maintenu pour compatibilité)
   static final AppSizes _instance = AppSizes._internal();
   factory AppSizes() => _instance;
   AppSizes._internal();
 
-  // État des dimensions
+  // Variables d'état (conservées pour rétrocompatibilité)
   static late double _screenWidth;
   static late double _screenHeight;
   static late double _blockSizeHorizontal;
@@ -18,8 +22,14 @@ class AppSizes {
   static late double _safeBlockVertical;
   static late bool _isInitialized;
 
-  // Méthode d'initialisation à appeler dans votre main ou splash screen
+  /// Méthode d'initialisation (DÉPRÉCIÉ)
+  /// Utilisez ResponsiveManager().initialize(context) à la place
+  @Deprecated('Utilisez ResponsiveManager().initialize(context)')
   static void initialize(BuildContext context) {
+    // Initialiser le nouveau système
+    ResponsiveManager().initialize(context);
+
+    // Maintenir l'ancien système pour compatibilité
     MediaQueryData _mediaQueryData = MediaQuery.of(context);
     _screenWidth = _mediaQueryData.size.width;
     _screenHeight = _mediaQueryData.size.height;
@@ -34,74 +44,162 @@ class AppSizes {
     _isInitialized = true;
   }
 
-  // Vérifier que les dimensions ont été initialisées
   static void _checkInitialization() {
     assert(_isInitialized, 'AppSizes n\'est pas initialisé. Appelez AppSizes.initialize(context) dans votre widget racine.');
   }
 
-  // Récupérer un pourcentage de la largeur d'écran (utile pour les colonnes et layouts)
+  // ===================
+  // MÉTHODES DÉPRÉCIÉES - Redirection vers le nouveau système
+  // ===================
+
+  /// DÉPRÉCIÉ : Utilisez ResponsiveSizes.widthPercent()
+  @Deprecated('Utilisez ResponsiveSizes.widthPercent()')
   static double percentWidth(double percent) {
-    _checkInitialization();
-    return _safeBlockHorizontal * percent;
+    try {
+      return ResponsiveSizes.widthPercent(percent);
+    } catch (e) {
+      // Fallback vers l'ancien système si le nouveau n'est pas initialisé
+      _checkInitialization();
+      return _safeBlockHorizontal * percent;
+    }
   }
 
-  // Récupérer un pourcentage de la hauteur d'écran (utile pour les lignes et espaces verticaux)
+  /// DÉPRÉCIÉ : Utilisez ResponsiveSizes.heightPercent()
+  @Deprecated('Utilisez ResponsiveSizes.heightPercent()')
   static double percentHeight(double percent) {
-    _checkInitialization();
-    return _safeBlockVertical * percent;
+    try {
+      return ResponsiveSizes.heightPercent(percent);
+    } catch (e) {
+      // Fallback vers l'ancien système si le nouveau n'est pas initialisé
+      _checkInitialization();
+      return _safeBlockVertical * percent;
+    }
   }
 
-  // Fonction pour l'adaptation des tailles de police selon l'écran
+  /// DÉPRÉCIÉ : Utilisez ResponsiveSizes.customFontSize()
+  @Deprecated('Utilisez ResponsiveSizes.customFontSize()')
   static double scaledFontSize(double size) {
-    _checkInitialization();
-    double scaleFactor = _screenWidth / 375; // Base sur iPhone 8 comme référence
-    return size * scaleFactor;
+    try {
+      return ResponsiveSizes.customFontSize(size);
+    } catch (e) {
+      // Fallback vers l'ancien système
+      _checkInitialization();
+      double scaleFactor = _screenWidth / 375;
+      return size * scaleFactor;
+    }
   }
 
-  // Récupérer un pourcentage de la largeur d'écran totale (sans tenir compte des zones de sécurité)
+  /// DÉPRÉCIÉ : Utilisez ResponsiveManager().widthPercent() avec useSafeArea: false
+  @Deprecated('Utilisez ResponsiveManager().widthPercent() avec useSafeArea: false')
   static double fullPercentWidth(double percent) {
-    _checkInitialization();
-    return _blockSizeHorizontal * percent;
+    try {
+      return ResponsiveManager().widthPercent(percent, useSafeArea: false);
+    } catch (e) {
+      _checkInitialization();
+      return _blockSizeHorizontal * percent;
+    }
   }
 
-  // Récupérer un pourcentage de la hauteur d'écran totale (sans tenir compte des zones de sécurité)
+  /// DÉPRÉCIÉ : Utilisez ResponsiveManager().heightPercent() avec useSafeArea: false
+  @Deprecated('Utilisez ResponsiveManager().heightPercent() avec useSafeArea: false')
   static double fullPercentHeight(double percent) {
-    _checkInitialization();
-    return _blockSizeVertical * percent;
+    try {
+      return ResponsiveManager().heightPercent(percent, useSafeArea: false);
+    } catch (e) {
+      _checkInitialization();
+      return _blockSizeVertical * percent;
+    }
   }
 
-  // Tailles de police adaptatives
-  static double get h1 => scaledFontSize(28.0);
-  static double get h2 => scaledFontSize(24.0);
-  static double get h3 => scaledFontSize(20.0);
-  static double get bodyLarge => scaledFontSize(16.0);
-  static double get bodyMedium => scaledFontSize(14.0);
-  static double get bodySmall => scaledFontSize(12.0);
+  // ===================
+  // NOUVELLES PROPRIÉTÉS - Redirection vers ResponsiveSizes
+  // ===================
 
-  // Line heights (multiplicateurs)
-  static const double lineHeightLarge = 1.6;
-  static const double lineHeightMedium = 1.5;
-  static const double lineHeightSmall = 1.4;
+  /// Tailles de police adaptatives (NOUVEAU SYSTÈME)
+  static double get h1 => ResponsiveSizes.h1;
+  static double get h2 => ResponsiveSizes.h2;
+  static double get h3 => ResponsiveSizes.h3;
+  static double get bodyLarge => ResponsiveSizes.bodyLarge;
+  static double get bodyMedium => ResponsiveSizes.bodyMedium;
+  static double get bodySmall => ResponsiveSizes.bodySmall;
 
-  // Letter spacing
-  static const double spacingTight = -0.25;
-  static const double spacingMedium = 0.0;
-  static const double spacingWide = 0.5;
+  /// Line heights (conservées)
+  static const double lineHeightLarge = ResponsiveSizes.lineHeightRelaxed;
+  static const double lineHeightMedium = ResponsiveSizes.lineHeightNormal;
+  static const double lineHeightSmall = ResponsiveSizes.lineHeightTight;
 
-  // Paddings responsifs
-  static double get paddingSmall => percentWidth(2.0); // ~8.0
-  static double get paddingMedium => percentWidth(3.0); // ~12.0
-  static double get paddingLarge => percentWidth(4.0); // ~16.0
-  static double get paddingXLarge => percentWidth(6.0); // ~24.0
+  /// Letter spacing (conservées)
+  static const double spacingTight = ResponsiveSizes.letterSpacingTight;
+  static const double spacingMedium = ResponsiveSizes.letterSpacingNormal;
+  static const double spacingWide = ResponsiveSizes.letterSpacingWide;
 
-  // Border radius
-  static const double radiusSmall = 8.0;
-  static const double radiusMedium = 16.0;
+  /// Paddings responsifs (NOUVEAU SYSTÈME)
+  static double get paddingSmall => ResponsiveSizes.spacingSmall;
+  static double get paddingMedium => ResponsiveSizes.spacingMedium;
+  static double get paddingLarge => ResponsiveSizes.spacingLarge;
+  static double get paddingXLarge => ResponsiveSizes.spacingXLarge;
 
-  // Élévations
-  static const double elevationSmall = 2.0;
+  /// Border radius (NOUVEAU SYSTÈME)
+  static double get radiusSmall => ResponsiveSizes.radiusSmall;
+  static double get radiusMedium => ResponsiveSizes.radiusMedium;
 
-  // Getters pour les dimensions de l'écran
-  static double get screenWidth => _screenWidth;
-  static double get screenHeight => _screenHeight;
+  /// Élévations (NOUVEAU SYSTÈME)
+  static double get elevationSmall => ResponsiveSizes.elevationSmall;
+
+  // ===================
+  // GETTERS POUR COMPATIBILITÉ
+  // ===================
+
+  /// DÉPRÉCIÉ : Utilisez ResponsiveManager().screenWidth
+  @Deprecated('Utilisez ResponsiveManager().screenWidth')
+  static double get screenWidth {
+    try {
+      return ResponsiveManager().screenWidth;
+    } catch (e) {
+      return _screenWidth;
+    }
+  }
+
+  /// DÉPRÉCIÉ : Utilisez ResponsiveManager().screenHeight
+  @Deprecated('Utilisez ResponsiveManager().screenHeight')
+  static double get screenHeight {
+    try {
+      return ResponsiveManager().screenHeight;
+    } catch (e) {
+      return _screenHeight;
+    }
+  }
+}
+
+// ===================
+// EXTENSIONS POUR FACILITER LA MIGRATION
+// ===================
+
+extension ResponsiveExtensions on BuildContext {
+  /// Extension pour accéder au manager responsive
+  ResponsiveManager get responsive => ResponsiveManager();
+}
+
+// ===================
+// FONCTIONS GLOBALES POUR MIGRATION RAPIDE
+// ===================
+
+/// Fonction globale pour faciliter la migration des tailles de police
+double responsiveFont(double baseSize, {double? minSize, double? maxSize}) {
+  return ResponsiveSizes.customFontSize(baseSize, minSize: minSize, maxSize: maxSize);
+}
+
+/// Fonction globale pour faciliter la migration des espacements
+double responsiveSpacing(double baseSpacing, {double? minSpacing, double? maxSpacing}) {
+  return ResponsiveSizes.customSpacing(baseSpacing, minValue: minSpacing, maxValue: maxSpacing);
+}
+
+/// Fonction globale pour faciliter la migration des pourcentages de largeur
+double responsiveWidth(double percent, {double? minValue, double? maxValue}) {
+  return ResponsiveSizes.widthPercent(percent, minValue: minValue, maxValue: maxValue);
+}
+
+/// Fonction globale pour faciliter la migration des pourcentages de hauteur
+double responsiveHeight(double percent, {double? minValue, double? maxValue}) {
+  return ResponsiveSizes.heightPercent(percent, minValue: minValue, maxValue: maxValue);
 }
