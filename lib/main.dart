@@ -12,6 +12,7 @@ void main() async {
   await Hive.openBox('user');
   await Hive.openBox('temp');
   await Hive.openBox('notifications');
+  await Hive.openBox('showcase'); // Ajout du box pour les showcases
 
   // Détermine la route initiale en fonction de l'état d'authentification
   final String initialRoute = await _determineInitialRoute();
