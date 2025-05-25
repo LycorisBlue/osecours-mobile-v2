@@ -11,7 +11,6 @@ import 'controllers.dart';
 import 'widgets/header_widget.dart';
 import 'widgets/alert_grid_widget.dart';
 import 'widgets/latest_alert_widget.dart';
-import 'widgets/emergency_bottom_bar_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
