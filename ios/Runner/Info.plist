@@ -45,5 +45,23 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+		<!-- Permission pour la géolocalisation -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Cette application a besoin d'accéder à votre localisation pour envoyer des alertes précises aux services d'urgence.</string>
+
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Cette application a besoin d'accéder à votre localisation pour envoyer des alertes précises aux services d'urgence.</string>
+
+	<!-- Permission pour la caméra -->
+	<key>NSCameraUsageDescription</key>
+	<string>Cette application a besoin d'accéder à votre caméra pour prendre des photos et vidéos lors de l'envoi d'alertes.</string>
+
+	<!-- Permission pour les photos (si tu décides d'ajouter l'accès galerie plus tard) -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Cette application a besoin d'accéder à vos photos pour envoyer des images avec vos alertes.</string>
+
+	<!-- Permission pour le microphone (pour les vidéos) -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Cette application a besoin d'accéder à votre microphone pour enregistrer des vidéos avec du son.</string>
 </dict>
 </plist>

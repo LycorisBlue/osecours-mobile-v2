@@ -27,7 +27,7 @@ Future<String> _determineInitialRoute() async {
   if (isLoggedIn) {
     return Routes.home;
   } else {
-    return Routes.login;
+    return Routes.otp;
   }
 }
 

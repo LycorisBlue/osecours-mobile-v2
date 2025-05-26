@@ -32,10 +32,7 @@ enum AlertStatus {
   final String label;
 
   static AlertStatus fromString(String status) {
-    return AlertStatus.values.firstWhere(
-      (e) => e.value == status,
-      orElse: () => AlertStatus.enAttente,
-    );
+    return AlertStatus.values.firstWhere((e) => e.value == status, orElse: () => AlertStatus.enAttente);
   }
 }
 
@@ -45,24 +42,24 @@ class MediaFile {
   final bool isVideo;
   final String mimeType;
 
-  MediaFile({
-    required this.file,
-    this.isVideo = false,
-    required this.mimeType,
-  });
+  MediaFile({required this.file, this.isVideo = false, required this.mimeType});
 
   /// Formats d'images acceptés
   static const List<String> acceptedImageFormats = ['jpg', 'jpeg', 'png'];
-  
+
   /// Formats de vidéos acceptés
   static const List<String> acceptedVideoFormats = ['mp4', 'mov'];
+
+  /// Taille maximale pour les images (5 MB)
+  static const int maxImageSizeBytes = 5 * 1024 * 1024;
+
+  /// Taille maximale pour les vidéos (10 MB)
+  static const int maxVideoSizeBytes = 10 * 1024 * 1024;
 
   /// Vérifie si le format est accepté
   static bool isFormatAccepted(String extension, bool isVideo) {
     final ext = extension.toLowerCase();
-    return isVideo 
-        ? acceptedVideoFormats.contains(ext)
-        : acceptedImageFormats.contains(ext);
+    return isVideo ? acceptedVideoFormats.contains(ext) : acceptedImageFormats.contains(ext);
   }
 
   /// Obtient le type MIME approprié
@@ -73,6 +70,22 @@ class MediaFile {
     } else {
       return ext == 'jpg' ? 'image/jpeg' : 'image/$ext';
     }
+  }
+
+  /// Valide la taille du fichier selon son type
+  Future<bool> isValidSize() async {
+    try {
+      final int fileSizeBytes = await file.length();
+      final int maxSize = isVideo ? maxVideoSizeBytes : maxImageSizeBytes;
+      return fileSizeBytes <= maxSize;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Obtient le nom du fichier
+  String get fileName {
+    return file.path.split('/').last;
   }
 }
 
@@ -101,6 +114,24 @@ class AlertService {
         throw Exception('Au moins une photo ou vidéo est requise');
       }
 
+      // Validation des contraintes (3 médias max, 1 vidéo max)
+      if (mediaFiles.length > 3) {
+        throw Exception('Maximum 3 médias autorisés');
+      }
+
+      final videoCount = mediaFiles.where((media) => media.isVideo).length;
+      if (videoCount > 1) {
+        throw Exception('Maximum 1 vidéo autorisée');
+      }
+
+      // Validation de la taille des fichiers
+      for (final media in mediaFiles) {
+        if (!await media.isValidSize()) {
+          final maxSizeMB = media.isVideo ? 10 : 5;
+          throw Exception('Le fichier ${media.fileName} dépasse la taille maximale de ${maxSizeMB}MB');
+        }
+      }
+
       // Obtenir la position si non fournie
       if (latitude == null || longitude == null) {
         final position = await LocationService.getCurrentPosition();
@@ -117,10 +148,7 @@ class AlertService {
       }
 
       // Préparer la requête multipart
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$baseUrl/citizen/create-alert'),
-      );
+      var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/citizen/create-alert'));
 
       // Headers
       final token = _getToken();
@@ -140,11 +168,13 @@ class AlertService {
       // Ajouter les fichiers médias
       for (int i = 0; i < mediaFiles.length; i++) {
         final media = mediaFiles[i];
-        request.files.add(await http.MultipartFile.fromPath(
-          'files${i + 1}',
-          media.file.path,
-          contentType: http_parser.MediaType.parse(media.mimeType),
-        ));
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'files${i + 1}',
+            media.file.path,
+            contentType: http_parser.MediaType.parse(media.mimeType),
+          ),
+        );
       }
 
       // Envoyer la requête
@@ -154,19 +184,12 @@ class AlertService {
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 201) {
-        return {
-          'success': true,
-          'message': 'Alerte envoyée avec succès',
-          'data': responseData,
-        };
+        return {'success': true, 'message': 'Alerte envoyée avec succès', 'data': responseData};
       } else {
         throw Exception(responseData['message'] ?? 'Erreur lors de l\'envoi de l\'alerte');
       }
     } catch (e) {
-      return {
-        'success': false,
-        'message': e.toString(),
-      };
+      return {'success': false, 'message': e.toString()};
     }
   }
 
@@ -176,28 +199,18 @@ class AlertService {
       final token = _getToken();
       final response = await http.get(
         Uri.parse('$baseUrl/citizen/latest-alert'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
+        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
       );
 
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        return {
-          'success': true,
-          'data': responseData['data'],
-        };
+        return {'success': true, 'data': responseData['data']};
       } else {
         throw Exception(responseData['message'] ?? 'Erreur lors de la récupération');
       }
     } catch (e) {
-      return {
-        'success': false,
-        'message': e.toString(),
-        'data': null,
-      };
+      return {'success': false, 'message': e.toString(), 'data': null};
     }
   }
 
@@ -207,28 +220,18 @@ class AlertService {
       final token = _getToken();
       final response = await http.get(
         Uri.parse('$baseUrl/citizen/all-alerts'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
+        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
       );
 
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        return {
-          'success': true,
-          'data': responseData['data'] ?? [],
-        };
+        return {'success': true, 'data': responseData['data'] ?? []};
       } else {
         throw Exception(responseData['message'] ?? 'Erreur lors de la récupération');
       }
     } catch (e) {
-      return {
-        'success': false,
-        'message': e.toString(),
-        'data': [],
-      };
+      return {'success': false, 'message': e.toString(), 'data': []};
     }
   }
 
@@ -238,27 +241,18 @@ class AlertService {
       final token = _getToken();
       final response = await http.get(
         Uri.parse('$baseUrl/citizen/get-alert-details/$alertId'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
+        headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
       );
 
       final responseData = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        return {
-          'success': true,
-          'data': responseData['data'],
-        };
+        return {'success': true, 'data': responseData['data']};
       } else {
         throw Exception(responseData['message'] ?? 'Erreur lors de la récupération');
       }
     } catch (e) {
-      return {
-        'success': false,
-        'message': e.toString(),
-      };
+      return {'success': false, 'message': e.toString()};
     }
   }
 
@@ -275,16 +269,19 @@ class AlertService {
 
       if (photo != null) {
         final extension = photo.path.split('.').last.toLowerCase();
-        
+
         if (!MediaFile.isFormatAccepted(extension, false)) {
           throw Exception('Format non supporté. Formats acceptés : JPG, JPEG, PNG');
         }
 
-        return MediaFile(
-          file: File(photo.path),
-          isVideo: false,
-          mimeType: MediaFile.getMimeType(extension, false),
-        );
+        final mediaFile = MediaFile(file: File(photo.path), isVideo: false, mimeType: MediaFile.getMimeType(extension, false));
+
+        // Vérifier la taille
+        if (!await mediaFile.isValidSize()) {
+          throw Exception('Image trop volumineuse (max 5MB)');
+        }
+
+        return mediaFile;
       }
       return null;
     } catch (e) {
@@ -303,16 +300,19 @@ class AlertService {
 
       if (video != null) {
         final extension = video.path.split('.').last.toLowerCase();
-        
+
         if (!MediaFile.isFormatAccepted(extension, true)) {
           throw Exception('Format non supporté. Formats acceptés : MP4, MOV');
         }
 
-        return MediaFile(
-          file: File(video.path),
-          isVideo: true,
-          mimeType: MediaFile.getMimeType(extension, true),
-        );
+        final mediaFile = MediaFile(file: File(video.path), isVideo: true, mimeType: MediaFile.getMimeType(extension, true));
+
+        // Vérifier la taille
+        if (!await mediaFile.isValidSize()) {
+          throw Exception('Vidéo trop volumineuse (max 10MB)');
+        }
+
+        return mediaFile;
       }
       return null;
     } catch (e) {
@@ -327,21 +327,35 @@ class AlertService {
         final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
         if (video != null) {
           final extension = video.path.split('.').last.toLowerCase();
-          return MediaFile(
-            file: File(video.path),
-            isVideo: true,
-            mimeType: MediaFile.getMimeType(extension, true),
-          );
+
+          if (!MediaFile.isFormatAccepted(extension, true)) {
+            throw Exception('Format non supporté. Formats acceptés : MP4, MOV');
+          }
+
+          final mediaFile = MediaFile(file: File(video.path), isVideo: true, mimeType: MediaFile.getMimeType(extension, true));
+
+          if (!await mediaFile.isValidSize()) {
+            throw Exception('Vidéo trop volumineuse (max 10MB)');
+          }
+
+          return mediaFile;
         }
       } else {
         final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
         if (image != null) {
           final extension = image.path.split('.').last.toLowerCase();
-          return MediaFile(
-            file: File(image.path),
-            isVideo: false,
-            mimeType: MediaFile.getMimeType(extension, false),
-          );
+
+          if (!MediaFile.isFormatAccepted(extension, false)) {
+            throw Exception('Format non supporté. Formats acceptés : JPG, JPEG, PNG');
+          }
+
+          final mediaFile = MediaFile(file: File(image.path), isVideo: false, mimeType: MediaFile.getMimeType(extension, false));
+
+          if (!await mediaFile.isValidSize()) {
+            throw Exception('Image trop volumineuse (max 5MB)');
+          }
+
+          return mediaFile;
         }
       }
       return null;

@@ -118,6 +118,16 @@ class HomeContentState extends State<HomeContent> {
     _scaffoldKey.currentState?.openDrawer();
   }
 
+  /// Callback appelé après l'envoi réussi d'une alerte
+  void _onAlertSent() {
+    // Rafraîchir les données pour inclure la nouvelle alerte
+    _refreshData();
+
+    // Optionnel : Afficher un message de confirmation supplémentaire
+    // ou effectuer d'autres actions (analytics, notifications, etc.)
+    debugPrint('Alerte envoyée - Données rafraîchies');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -266,7 +276,19 @@ class HomeContentState extends State<HomeContent> {
                 width: 70,
                 height: 70,
                 decoration: BoxDecoration(
-                  image: DecorationImage(image: AssetImage('assets/pictures/conseil.png'), fit: BoxFit.cover),
+                  image: DecorationImage(
+                    image: AssetImage('assets/pictures/conseil.png'),
+                    fit: BoxFit.cover,
+                    onError: (exception, stackTrace) {
+                      // Si l'image n'existe pas, on peut utiliser une couleur de fallback
+                    },
+                  ),
+                  color: AppColors.primary.withOpacity(0.1), // Fallback color
+                  borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppSizes.radiusSmall)),
+                  child: Icon(Icons.lightbulb_outline, color: AppColors.primary, size: AppSizes.iconLarge),
                 ),
               ),
               SizedBox(width: AppSizes.spacingMedium),

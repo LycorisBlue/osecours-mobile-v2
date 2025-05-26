@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:osecours/screens/emergency/index.dart';
 import 'package:osecours/screens/login/index.dart';
+import 'package:osecours/screens/otp/index.dart';
 import 'package:osecours/screens/registration/index.dart';
 import 'package:osecours/screens/home/index.dart';
 
@@ -17,7 +18,7 @@ class Routes {
     home: (context) => HomeScreen(),
     registration: (context) => const SignUpScreen(),
     login: (context) => const LoginScreen(),
-    otp: (context) => const Text('OTP Screen'), // TODO: Remplacer par le vrai OtpScreen
+    otp: (context) => OtpScreen(phoneNumber: "0759670150"), // TODO: Remplacer par le vrai OtpScreen
     emergency: (context) => const EmergencyScreen(),
   };
 
