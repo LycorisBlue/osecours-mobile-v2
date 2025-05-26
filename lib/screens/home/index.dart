@@ -92,8 +92,7 @@ class HomeContentState extends State<HomeContent> {
 
   /// Navigue vers les notifications
   void _navigateToNotifications() {
-    // TODO: Implémenter la navigation vers les notifications
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Navigation vers notifications - À implémenter')));
+    Routes.navigateTo(Routes.notifications);
   }
 
   /// Navigue vers toutes les alertes

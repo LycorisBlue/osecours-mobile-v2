@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:osecours/screens/alerts/index.dart';
 import 'package:osecours/screens/emergency/index.dart';
 import 'package:osecours/screens/login/index.dart';
+import 'package:osecours/screens/notifications/index.dart';
 import 'package:osecours/screens/otp/index.dart';
 import 'package:osecours/screens/profile/index.dart';
 import 'package:osecours/screens/registration/index.dart';
@@ -23,6 +24,8 @@ class Routes {
   static const String settings = '/settings';
   static const String profile = '/profile';
   static const String safeContacts = '/safe-contacts';
+  static const String notifications = '/notifications';
+
 
   static Map<String, Widget Function(BuildContext)> get routes => {
     splash: (context) => const SplashScreen(),
@@ -35,6 +38,7 @@ class Routes {
     settings: (context) => const SettingsScreen(),
     profile: (context) => const ProfileScreen(),
     safeContacts: (context) => const SafeContactsScreen(),
+    notifications: (context) => const NotificationsScreen(),
   };
 
   // Navigation standard avec animation personnalisée
