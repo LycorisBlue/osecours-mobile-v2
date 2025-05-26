@@ -45,23 +45,28 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-		<!-- Permission pour la géolocalisation -->
+	<!-- Permission d'accès aux contacts -->
+	<key>NSContactsUsageDescription</key>
+	<string>O'Secours accède à vos contacts pour vous permettre de sélectionner facilement vos proches de confiance qui seront alertés en cas d'urgence.</string>
+
+	<!-- Permission de géolocalisation -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Cette application a besoin d'accéder à votre localisation pour envoyer des alertes précises aux services d'urgence.</string>
+	<string>O'Secours utilise votre localisation pour envoyer votre position précise lors d'une alerte d'urgence aux services de secours.</string>
 
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Cette application a besoin d'accéder à votre localisation pour envoyer des alertes précises aux services d'urgence.</string>
+	<string>O'Secours utilise votre localisation pour envoyer votre position lors d'alertes d'urgence et partager votre localisation avec vos proches de confiance.</string>
 
-	<!-- Permission pour la caméra -->
+	<!-- Permission d'accès à la caméra -->
 	<key>NSCameraUsageDescription</key>
-	<string>Cette application a besoin d'accéder à votre caméra pour prendre des photos et vidéos lors de l'envoi d'alertes.</string>
+	<string>O'Secours accède à votre caméra pour capturer des photos et vidéos lors de l'envoi d'alertes d'urgence aux services de secours.</string>
 
-	<!-- Permission pour les photos (si tu décides d'ajouter l'accès galerie plus tard) -->
+	<!-- Permission d'accès à la galerie photo -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Cette application a besoin d'accéder à vos photos pour envoyer des images avec vos alertes.</string>
+	<string>O'Secours accède à vos photos pour joindre des images lors de l'envoi d'alertes d'urgence aux services de secours.</string>
 
-	<!-- Permission pour le microphone (pour les vidéos) -->
+	<!-- Permission de microphone pour les vidéos -->
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Cette application a besoin d'accéder à votre microphone pour enregistrer des vidéos avec du son.</string>
+	<string>O'Secours accède au microphone pour enregistrer des vidéos lors de l'envoi d'alertes d'urgence aux services de secours.</string>
+
 </dict>
 </plist>

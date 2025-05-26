@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Permission d'accès aux contacts -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <!-- Permissions pour la géolocalisation -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
