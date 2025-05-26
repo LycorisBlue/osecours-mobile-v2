@@ -45,10 +45,7 @@ class AppDrawer extends StatelessWidget {
                     text: "Mes alertes",
                     onTap: () {
                       Navigator.pop(context);
-                      // TODO: Implémenter navigation vers toutes les alertes
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Navigation vers mes alertes - À implémenter')));
+                      Routes.navigateTo(Routes.alerts);
                     },
                   ),
                   _buildDrawerItem(
@@ -56,10 +53,7 @@ class AppDrawer extends StatelessWidget {
                     text: "Paramètres",
                     onTap: () {
                       Navigator.pop(context);
-                      // TODO: Implémenter navigation vers paramètres
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Navigation vers paramètres - À implémenter')));
+                      Routes.navigateTo(Routes.settings);
                     },
                   ),
                 ],

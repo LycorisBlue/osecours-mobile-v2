@@ -14,27 +14,11 @@ void main() async {
   await Hive.openBox('notifications');
   await Hive.openBox('showcase'); // Ajout du box pour les showcases
 
-  // Détermine la route initiale en fonction de l'état d'authentification
-  final String initialRoute = await _determineInitialRoute();
-
-  runApp(MyApp(initialRoute: initialRoute));
-}
-
-Future<String> _determineInitialRoute() async {
-  final authBox = Hive.box('auth');
-  final bool isLoggedIn = authBox.get('isLoggedIn', defaultValue: false);
-
-  if (isLoggedIn) {
-    return Routes.home;
-  } else {
-    return Routes.otp;
-  }
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final String initialRoute;
-
-  const MyApp({super.key, required this.initialRoute});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +33,7 @@ class MyApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           // darkTheme: AppTheme.darkTheme,
           // themeMode: ThemeMode.system,
-          initialRoute: initialRoute,
+          initialRoute: Routes.splash,
           onGenerateRoute: Routes.onGenerateRoute,
           debugShowCheckedModeBanner: false,
         );

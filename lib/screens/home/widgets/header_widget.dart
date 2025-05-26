@@ -48,7 +48,7 @@ class HeaderWidget extends StatelessWidget {
                       SizedBox(width: AppSizes.spacingSmall),
                       Flexible(
                         child: Text(
-                          'Votre adresse : ${currentAddress.length > 20 ? '${currentAddress.substring(0, 20)}...' : currentAddress}',
+                          currentAddress.length > 30 ? '${currentAddress.substring(0, 30)}...' : currentAddress,
                           style: TextStyle(fontSize: AppSizes.bodySmall, color: AppColors.textLight),
                           overflow: TextOverflow.ellipsis,
                         ),

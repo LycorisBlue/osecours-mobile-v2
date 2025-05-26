@@ -4,6 +4,8 @@ import 'package:osecours/core/constants/themes.dart';
 import '../../../core/constants/sizes.dart';
 import '../../../core/constants/colors.dart';
 import '../../../services/alert_service.dart';
+import '../../../services/navigation_service.dart';
+import '../../alerts/widgets/alert_detail_bottom_sheet.dart';
 
 class LatestAlertWidget extends StatelessWidget {
   final Map<String, dynamic>? latestAlert;
@@ -25,7 +27,7 @@ class LatestAlertWidget extends StatelessWidget {
             children: [
               Text('Mes alertes', style: AppTextStyles.heading3),
               TextButton(
-                onPressed: onViewAllAlerts,
+                onPressed: () => Routes.navigateTo(Routes.alerts),
                 child: Text(
                   'Tout voir',
                   style: TextStyle(fontSize: AppSizes.bodyMedium, fontWeight: FontWeight.w500, color: AppColors.primary),
@@ -36,7 +38,7 @@ class LatestAlertWidget extends StatelessWidget {
           SizedBox(height: AppSizes.spacingMedium),
 
           // Contenu de l'alerte
-          if (latestAlert == null) _buildEmptyState() else _buildAlertCard(),
+          if (latestAlert == null) _buildEmptyState() else _buildAlertCard(context),
         ],
       ),
     );
@@ -46,14 +48,14 @@ class LatestAlertWidget extends StatelessWidget {
     return Text("Aucune alerte n'a été émise", style: TextStyle(fontSize: AppSizes.bodyMedium, color: AppColors.textLight));
   }
 
-  Widget _buildAlertCard() {
+  Widget _buildAlertCard(BuildContext context) {
     final description = latestAlert!['description'] ?? '';
     final status = latestAlert!['status'] ?? 'EN_ATTENTE';
     final createdAt = latestAlert!['createdAt'] ?? '';
     final alertId = latestAlert!['id']?.toString() ?? '';
 
     return GestureDetector(
-      onTap: () => onAlertTap(alertId),
+      onTap: () => _showAlertDetails(context, latestAlert!),
       child: Container(
         padding: EdgeInsets.all(AppSizes.spacingMedium),
         decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(AppSizes.radiusSmall)),
@@ -102,9 +104,29 @@ class LatestAlertWidget extends StatelessWidget {
     );
   }
 
+  /// Affiche les détails de l'alerte dans un bottom sheet
+  void _showAlertDetails(BuildContext context, Map<String, dynamic> alert) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AlertDetailBottomSheet(alert: alert),
+    );
+  }
+
   String _formatStatus(String status) {
-    final alertStatus = AlertStatus.fromString(status);
-    return alertStatus.label;
+    switch (status.toUpperCase()) {
+      case 'EN_ATTENTE':
+        return 'En attente';
+      case 'ACCEPTEE':
+        return 'Acceptée';
+      case 'EN_COURS':
+        return 'En cours';
+      case 'RESOLUE':
+        return 'Résolue';
+      default:
+        return 'En attente';
+    }
   }
 
   IconData _getStatusIcon(String status) {

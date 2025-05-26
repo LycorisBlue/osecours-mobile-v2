@@ -1,25 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:osecours/screens/alerts/index.dart';
 import 'package:osecours/screens/emergency/index.dart';
 import 'package:osecours/screens/login/index.dart';
 import 'package:osecours/screens/otp/index.dart';
 import 'package:osecours/screens/registration/index.dart';
 import 'package:osecours/screens/home/index.dart';
+import 'package:osecours/screens/settings/index.dart';
+import 'package:osecours/screens/splash/index.dart';
 
 class Routes {
   static final navigatorKey = GlobalKey<NavigatorState>();
 
+  static const String splash = '/splash';
   static const String home = '/';
   static const String registration = '/registration';
   static const String login = '/login';
   static const String otp = '/otp';
   static const String emergency = '/emergency';
+  static const String alerts = '/alerts';
+  static const String settings = '/settings';
+
 
   static Map<String, Widget Function(BuildContext)> get routes => {
+    splash: (context) => const SplashScreen(),
     home: (context) => HomeScreen(),
     registration: (context) => const SignUpScreen(),
     login: (context) => const LoginScreen(),
-    otp: (context) => OtpScreen(phoneNumber: "0759670150"), // TODO: Remplacer par le vrai OtpScreen
+    otp: (context) => OtpScreen(phoneNumber: "0759670150"),
     emergency: (context) => const EmergencyScreen(),
+    alerts: (context) => const AlertsScreen(),
+    settings: (context) => const SettingsScreen(),
+
   };
 
   // Navigation standard avec animation personnalisée
@@ -117,8 +128,8 @@ class Routes {
     // Vérification de sécurité pour la route
     final routeBuilder = routes[settings.name];
     if (routeBuilder == null) {
-      // Si la route n'existe pas, retourner à l'écran d'accueil
-      return MaterialPageRoute(builder: routes[home]!, settings: const RouteSettings(name: home));
+      // Si la route n'existe pas, retourner au splash
+      return MaterialPageRoute(builder: routes[splash]!, settings: RouteSettings(name: splash));
     }
 
     final args = settings.arguments as Map<String, dynamic>? ?? {};
