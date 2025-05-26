@@ -21,6 +21,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   showcaseview: ^4.0.1
   flutter_map: ^8.1.1
+  flutter_contacts: ^1.1.9+2
 
 dev_dependencies:
   flutter_test:

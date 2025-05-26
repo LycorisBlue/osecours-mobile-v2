@@ -3,10 +3,12 @@ import 'package:osecours/screens/alerts/index.dart';
 import 'package:osecours/screens/emergency/index.dart';
 import 'package:osecours/screens/login/index.dart';
 import 'package:osecours/screens/otp/index.dart';
+import 'package:osecours/screens/profile/index.dart';
 import 'package:osecours/screens/registration/index.dart';
 import 'package:osecours/screens/home/index.dart';
 import 'package:osecours/screens/settings/index.dart';
 import 'package:osecours/screens/splash/index.dart';
+import 'package:osecours/screens/safe_contacts/index.dart';
 
 class Routes {
   static final navigatorKey = GlobalKey<NavigatorState>();
@@ -19,7 +21,8 @@ class Routes {
   static const String emergency = '/emergency';
   static const String alerts = '/alerts';
   static const String settings = '/settings';
-
+  static const String profile = '/profile';
+  static const String safeContacts = '/safe-contacts';
 
   static Map<String, Widget Function(BuildContext)> get routes => {
     splash: (context) => const SplashScreen(),
@@ -30,7 +33,8 @@ class Routes {
     emergency: (context) => const EmergencyScreen(),
     alerts: (context) => const AlertsScreen(),
     settings: (context) => const SettingsScreen(),
-
+    profile: (context) => const ProfileScreen(),
+    safeContacts: (context) => const SafeContactsScreen(),
   };
 
   // Navigation standard avec animation personnalisée

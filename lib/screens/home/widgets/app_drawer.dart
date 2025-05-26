@@ -34,10 +34,7 @@ class AppDrawer extends StatelessWidget {
                     text: "Mon profil",
                     onTap: () {
                       Navigator.pop(context);
-                      // TODO: Implémenter navigation vers profil
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(const SnackBar(content: Text('Navigation vers profil - À implémenter')));
+                      Routes.navigateTo(Routes.profile);
                     },
                   ),
                   _buildDrawerItem(

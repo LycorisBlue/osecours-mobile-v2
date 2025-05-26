@@ -38,18 +38,13 @@ class SettingsController {
     }
   }
 
-  /// Navigue vers la page de profil
   void navigateToProfile() {
-    // TODO: Implémenter la navigation vers le profil
-    // Routes.navigateTo(Routes.profile);
-    debugPrint('Navigation vers profil - À implémenter');
+    Routes.navigateTo(Routes.profile);
   }
 
   /// Navigue vers les numéros de sécurité
   void navigateToSafeNumbers() {
-    // TODO: Implémenter la navigation vers SafeNumbers
-    // Routes.navigateTo(Routes.safeNumbers);
-    debugPrint('Navigation vers numéros de sécurité - À implémenter');
+    Routes.navigateTo(Routes.safeContacts);
   }
 
   /// Navigue vers les lieux importants
