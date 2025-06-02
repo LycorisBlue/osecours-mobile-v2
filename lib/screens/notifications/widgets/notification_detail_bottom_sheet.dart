@@ -3,18 +3,40 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/sizes.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/themes.dart';
-import '../../../data/models/notification_models.dart';
-import '../../../services/navigation_service.dart';
+import 'notification_card.dart'; // Pour utiliser l'enum NotificationType
 
 /// Bottom sheet pour afficher les détails complets d'une notification
 class NotificationDetailBottomSheet extends StatelessWidget {
-  final AppNotification notification;
+  final Map<String, dynamic> notification;
 
   const NotificationDetailBottomSheet({super.key, required this.notification});
+
+  /// Détermine le type de notification
+  NotificationType _getNotificationType() {
+    if (notification['type'] == 'ALERT' || notification.containsKey('alert_id')) {
+      return NotificationType.alert;
+    }
+
+    final sender = notification['sender'];
+    if (sender != null) {
+      final role = sender['role'] as String?;
+      switch (role?.toUpperCase()) {
+        case 'ADMIN':
+          return NotificationType.admin;
+        case 'RESCUE_MEMBER':
+          return NotificationType.rescueMember;
+        default:
+          return NotificationType.system;
+      }
+    }
+
+    return NotificationType.system;
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final notifType = _getNotificationType();
 
     return Container(
       constraints: BoxConstraints(maxHeight: screenHeight * 0.85, minHeight: screenHeight * 0.4),
@@ -29,7 +51,7 @@ class NotificationDetailBottomSheet extends StatelessWidget {
           _buildHandle(),
 
           // En-tête
-          _buildHeader(context),
+          _buildHeader(context, notifType),
 
           // Contenu scrollable
           Flexible(
@@ -39,7 +61,7 @@ class NotificationDetailBottomSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Informations de l'expéditeur
-                  _buildSenderInfo(),
+                  _buildSenderInfo(notifType),
 
                   SizedBox(height: AppSizes.spacingLarge),
 
@@ -52,7 +74,10 @@ class NotificationDetailBottomSheet extends StatelessWidget {
                   _buildMetadata(),
 
                   // Actions si la notification est liée à une alerte
-                  if (notification.hasAlert) ...[SizedBox(height: AppSizes.spacingLarge), _buildAlertActions(context)],
+                  if (notification.containsKey('alert_id')) ...[
+                    SizedBox(height: AppSizes.spacingLarge),
+                    _buildAlertActions(context),
+                  ],
 
                   SizedBox(height: AppSizes.spacingXLarge),
                 ],
@@ -75,7 +100,7 @@ class NotificationDetailBottomSheet extends StatelessWidget {
   }
 
   /// En-tête avec titre et bouton fermer
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, NotificationType notifType) {
     return Container(
       padding: EdgeInsets.all(AppSizes.spacingMedium),
       decoration: BoxDecoration(border: Border(bottom: BorderSide(color: AppColors.textLight.withOpacity(0.1), width: 1))),
@@ -85,11 +110,11 @@ class NotificationDetailBottomSheet extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(AppSizes.spacingSmall),
             decoration: BoxDecoration(
-              color: notification.type.lightColor,
+              color: notifType.lightColor,
               borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-              border: Border.all(color: notification.type.borderColor, width: 1),
+              border: Border.all(color: notifType.borderColor, width: 1),
             ),
-            child: Icon(notification.type.icon, color: notification.type.color, size: AppSizes.iconMedium),
+            child: Icon(notifType.icon, color: notifType.color, size: AppSizes.iconMedium),
           ),
 
           SizedBox(width: AppSizes.spacingMedium),
@@ -108,13 +133,15 @@ class NotificationDetailBottomSheet extends StatelessWidget {
   }
 
   /// Informations détaillées sur l'expéditeur
-  Widget _buildSenderInfo() {
+  Widget _buildSenderInfo(NotificationType notifType) {
+    final sender = notification['sender'];
+
     return Container(
       padding: EdgeInsets.all(AppSizes.spacingMedium),
       decoration: BoxDecoration(
         color: AppColors.background,
         borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-        border: Border.all(color: notification.type.borderColor, width: 1),
+        border: Border.all(color: notifType.borderColor, width: 1),
       ),
       child: Row(
         children: [
@@ -123,19 +150,19 @@ class NotificationDetailBottomSheet extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: notification.type.lightColor,
+              color: notifType.lightColor,
               shape: BoxShape.circle,
-              border: Border.all(color: notification.type.borderColor, width: 2),
+              border: Border.all(color: notifType.borderColor, width: 2),
             ),
             child:
-                notification.sender.initials.isNotEmpty
+                sender != null && sender['first_name'] != null && sender['last_name'] != null
                     ? Center(
                       child: Text(
-                        notification.sender.initials,
-                        style: AppTextStyles.heading3.copyWith(color: notification.type.color, fontWeight: FontWeight.bold),
+                        "${sender['first_name'][0]}${sender['last_name'][0]}".toUpperCase(),
+                        style: AppTextStyles.heading3.copyWith(color: notifType.color, fontWeight: FontWeight.bold),
                       ),
                     )
-                    : Icon(notification.type.icon, color: notification.type.color, size: AppSizes.iconLarge),
+                    : Icon(notifType.icon, color: notifType.color, size: AppSizes.iconLarge),
           ),
 
           SizedBox(width: AppSizes.spacingMedium),
@@ -147,7 +174,7 @@ class NotificationDetailBottomSheet extends StatelessWidget {
               children: [
                 // Nom de l'expéditeur
                 Text(
-                  notification.sender.fullName.isNotEmpty ? notification.sender.fullName : 'Système',
+                  sender != null ? "${sender['first_name']} ${sender['last_name']}" : 'Système',
                   style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
                 ),
 
@@ -157,13 +184,13 @@ class NotificationDetailBottomSheet extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: AppSizes.spacingSmall, vertical: AppSizes.spacingXSmall),
                   decoration: BoxDecoration(
-                    color: notification.type.lightColor,
+                    color: notifType.lightColor,
                     borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-                    border: Border.all(color: notification.type.borderColor, width: 1),
+                    border: Border.all(color: notifType.borderColor, width: 1),
                   ),
                   child: Text(
-                    notification.type.label,
-                    style: AppTextStyles.caption.copyWith(color: notification.type.color, fontWeight: FontWeight.w600),
+                    notifType.label,
+                    style: AppTextStyles.caption.copyWith(color: notifType.color, fontWeight: FontWeight.w600),
                   ),
                 ),
 
@@ -175,7 +202,7 @@ class NotificationDetailBottomSheet extends StatelessWidget {
                     Icon(Icons.access_time, size: AppSizes.iconSmall, color: AppColors.textLight),
                     SizedBox(width: AppSizes.spacingXSmall),
                     Text(
-                      _formatDateTime(notification.createdAt),
+                      _formatDateTime(DateTime.parse(notification['createdAt'])),
                       style: AppTextStyles.bodySmall.copyWith(color: AppColors.textLight),
                     ),
                   ],
@@ -205,7 +232,7 @@ class NotificationDetailBottomSheet extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppSizes.radiusCard),
             border: Border.all(color: AppColors.textLight.withOpacity(0.2), width: 1),
           ),
-          child: Text(notification.message, style: AppTextStyles.bodyMedium.copyWith(height: 1.5)),
+          child: Text(notification['message'], style: AppTextStyles.bodyMedium.copyWith(height: 1.5)),
         ),
       ],
     );
@@ -213,6 +240,8 @@ class NotificationDetailBottomSheet extends StatelessWidget {
 
   /// Métadonnées et informations supplémentaires
   Widget _buildMetadata() {
+    final isRead = notification['is_read'] as bool? ?? false;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -221,33 +250,17 @@ class NotificationDetailBottomSheet extends StatelessWidget {
         SizedBox(height: AppSizes.spacingMedium),
 
         // État de lecture
-        _buildInfoRow(
-          Icons.mark_email_read,
-          'État',
-          notification.isRead ? 'Lue' : 'Non lue',
-          notification.isRead ? Colors.green : AppColors.primary,
-        ),
+        _buildInfoRow(Icons.mark_email_read, 'État', isRead ? 'Lue' : 'Non lue', isRead ? Colors.green : AppColors.primary),
 
         SizedBox(height: AppSizes.spacingMedium),
 
         // ID de la notification
-        _buildInfoRow(Icons.tag, 'ID', notification.id, AppColors.textLight),
+        _buildInfoRow(Icons.tag, 'ID', notification['id'].toString(), AppColors.textLight),
 
         // Alerte liée si applicable
-        if (notification.hasAlert) ...[
+        if (notification.containsKey('alert_id')) ...[
           SizedBox(height: AppSizes.spacingMedium),
-          _buildInfoRow(Icons.warning_outlined, 'Alerte liée', notification.alertId!, Colors.orange),
-        ],
-
-        // Métadonnées personnalisées
-        if (notification.metadata != null && notification.metadata!.isNotEmpty) ...[
-          SizedBox(height: AppSizes.spacingMedium),
-          ...notification.metadata!.entries.map(
-            (entry) => Padding(
-              padding: EdgeInsets.only(bottom: AppSizes.spacingSmall),
-              child: _buildInfoRow(Icons.info_outline, entry.key, entry.value.toString(), AppColors.textLight),
-            ),
-          ),
+          _buildInfoRow(Icons.warning_outlined, 'Alerte liée', notification['alert_id'].toString(), Colors.orange),
         ],
       ],
     );
@@ -289,7 +302,7 @@ class NotificationDetailBottomSheet extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
               // Navigation vers les détails de l'alerte
-              Routes.navigateTo(Routes.alerts);
+              // Routes.navigateTo(Routes.alerts);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.orange,
@@ -312,7 +325,7 @@ class NotificationDetailBottomSheet extends StatelessWidget {
 }
 
 /// Fonction utilitaire pour afficher le bottom sheet
-void showNotificationDetail(BuildContext context, AppNotification notification) {
+void showNotificationDetail(BuildContext context, Map<String, dynamic> notification) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,

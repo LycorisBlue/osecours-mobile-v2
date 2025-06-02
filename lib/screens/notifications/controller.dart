@@ -1,10 +1,8 @@
 // lib/screens/notifications/controller.dart
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../../data/models/notification_models.dart';
 import '../../services/notification_service.dart';
 
-/// Controller pour gérer la logique des notifications
 class NotificationsController {
   final NotificationService _notificationService = NotificationService();
   static const String _hiveBoxKey = 'notifications';
@@ -14,28 +12,26 @@ class NotificationsController {
   bool _isRefreshing = false;
   bool _isMarkingAllAsRead = false;
   String? _error;
-  List<AppNotification> _notifications = [];
-  NotificationStats _stats = const NotificationStats(total: 0, unread: 0, byType: {});
+  List<Map<String, dynamic>> _notifications = [];
 
-  // Getters pour l'état
+  // Getters
   bool get isLoading => _isLoading;
   bool get isRefreshing => _isRefreshing;
   bool get isMarkingAllAsRead => _isMarkingAllAsRead;
   String? get error => _error;
-  List<AppNotification> get notifications => List.unmodifiable(_notifications);
-  NotificationStats get stats => _stats;
+  List<Map<String, dynamic>> get notifications => List.unmodifiable(_notifications);
 
-  // Getters calculés
   bool get isEmpty => _notifications.isEmpty && !_isLoading;
-  bool get hasUnread => _stats.hasUnread;
-  int get unreadCount => _stats.unread;
+  bool get hasUnread => _notifications.any((n) => !(n['is_read'] as bool? ?? false));
+  int get unreadCount => _notifications.where((n) => !(n['is_read'] as bool? ?? false)).length;
+  int get totalCount => _notifications.length;
 
-  /// Initialise le controller et charge les notifications
+  /// Initialise le controller
   Future<void> initialize(Function(void Function()) setState) async {
     await _loadNotifications(setState);
   }
 
-  /// Charge les notifications depuis le serveur et le cache local
+  /// Charge les notifications : local d'abord, puis API en arrière-plan
   Future<void> _loadNotifications(Function(void Function()) setState) async {
     setState(() {
       _isLoading = true;
@@ -43,96 +39,80 @@ class NotificationsController {
     });
 
     try {
-      // Charger d'abord depuis le cache local pour un affichage immédiat
-      await _loadFromCache(setState);
+      // 1. Charger et afficher les données locales immédiatement
+      await _loadFromLocal(setState);
 
-      // Puis récupérer depuis le serveur
-      final result = await _notificationService.getUnreadNotifications();
-
-      if (result['success'] ?? false) {
-        final notificationsData = result['data'] as List<dynamic>? ?? [];
-        final serverNotifications =
-            notificationsData.map((json) => AppNotification.fromJson(json as Map<String, dynamic>)).toList();
-
-        // Fusionner avec les notifications locales pour préserver les états "lu"
-        await _mergeWithLocalNotifications(serverNotifications, setState);
-      } else {
-        // En cas d'erreur serveur, utiliser seulement le cache local
-        if (_notifications.isEmpty) {
-          setState(() {
-            _error = result['message'] ?? 'Erreur lors du chargement des notifications';
-          });
-        }
-      }
+      // 2. Récupérer les nouvelles en arrière-plan
+      _fetchNewNotificationsInBackground(setState);
     } catch (e) {
-      // En cas d'erreur réseau, utiliser le cache local
-      if (_notifications.isEmpty) {
-        setState(() {
-          _error = 'Erreur de connexion: ${e.toString()}';
-        });
-      }
+      setState(() {
+        _error = 'Erreur lors du chargement: ${e.toString()}';
+      });
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
-  /// Charge les notifications depuis le cache Hive
-  Future<void> _loadFromCache(Function(void Function()) setState) async {
+  /// Charge depuis Hive et affiche immédiatement
+  Future<void> _loadFromLocal(Function(void Function()) setState) async {
     try {
       if (!Hive.isBoxOpen(_hiveBoxKey)) {
         await Hive.openBox(_hiveBoxKey);
       }
 
       final box = Hive.box(_hiveBoxKey);
-      final cachedData = box.values.map((item) => AppNotification.fromHive(Map<String, dynamic>.from(item as Map))).toList();
+      final localNotifications =
+          box.values.where((item) => item is Map).map((item) => Map<String, dynamic>.from(item as Map)).toList();
 
       setState(() {
-        _notifications = cachedData;
+        _notifications = localNotifications;
         _sortNotifications();
-        _updateStats();
       });
+
+      debugPrint('Notifications locales chargées: ${_notifications.length}');
     } catch (e) {
-      debugPrint('Erreur lors du chargement du cache: $e');
+      debugPrint('Erreur chargement local: $e');
     }
   }
 
-  /// Fusionne les notifications serveur avec les notifications locales
-  Future<void> _mergeWithLocalNotifications(List<AppNotification> serverNotifications, Function(void Function()) setState) async {
+  /// Récupère nouvelles notifications en arrière-plan
+  Future<void> _fetchNewNotificationsInBackground(Function(void Function()) setState) async {
     try {
-      // Créer une map des notifications locales par ID pour conserver les états "lu"
-      final localNotificationsMap = {for (var n in _notifications) n.id: n};
+      final result = await _notificationService.getUnreadNotifications();
 
-      // Fusionner les notifications serveur avec les états locaux
-      final mergedNotifications =
-          serverNotifications.map((serverNotification) {
-            final localNotification = localNotificationsMap[serverNotification.id];
-            if (localNotification != null) {
-              // Préserver l'état "lu" local
-              return serverNotification.copyWith(isRead: localNotification.isRead);
-            }
-            return serverNotification;
-          }).toList();
+      if (result['success'] == true || result.containsKey('data')) {
+        final newNotificationsData = result['data'] as List<dynamic>? ?? [];
 
-      // Ajouter les notifications locales qui ne sont plus sur le serveur
-      final serverIds = serverNotifications.map((n) => n.id).toSet();
-      final localOnlyNotifications = _notifications.where((n) => !serverIds.contains(n.id)).toList();
-
-      final allNotifications = [...mergedNotifications, ...localOnlyNotifications];
-
-      setState(() {
-        _notifications = allNotifications;
-        _sortNotifications();
-        _updateStats();
-      });
-
-      // Sauvegarder dans le cache
-      await _saveToCache();
+        if (newNotificationsData.isNotEmpty) {
+          await _mergeNewNotifications(newNotificationsData.cast<Map<String, dynamic>>(), setState);
+        }
+      }
     } catch (e) {
-      debugPrint('Erreur lors de la fusion des notifications: $e');
+      debugPrint('Erreur récupération arrière-plan: $e');
     }
   }
 
-  /// Rafraîchit les notifications (pull-to-refresh)
+  /// Fusionne nouvelles notifications
+  Future<void> _mergeNewNotifications(List<Map<String, dynamic>> newNotifications, Function(void Function()) setState) async {
+    try {
+      final existingIds = _notifications.map((n) => n['id']).toSet();
+      final notificationsToAdd = newNotifications.where((n) => !existingIds.contains(n['id'])).toList();
+
+      if (notificationsToAdd.isNotEmpty) {
+        setState(() {
+          _notifications.addAll(notificationsToAdd);
+          _sortNotifications();
+        });
+
+        await _saveToLocal();
+        debugPrint('${notificationsToAdd.length} nouvelles notifications ajoutées');
+      }
+    } catch (e) {
+      debugPrint('Erreur fusion: $e');
+    }
+  }
+
+  /// Rafraîchissement pull-to-refresh
   Future<void> refreshNotifications(Function(void Function()) setState) async {
     setState(() {
       _isRefreshing = true;
@@ -140,15 +120,16 @@ class NotificationsController {
     });
 
     try {
+      await _loadFromLocal(setState);
+
       final result = await _notificationService.getUnreadNotifications();
 
-      if (result['success'] ?? false) {
-        final notificationsData = result['data'] as List<dynamic>? ?? [];
-        final serverNotifications =
-            notificationsData.map((json) => AppNotification.fromJson(json as Map<String, dynamic>)).toList();
+      if (result['success'] == true || result.containsKey('data')) {
+        final newNotificationsData = result['data'] as List<dynamic>? ?? [];
 
-        await _mergeWithLocalNotifications(serverNotifications, setState);
-        _showSuccessMessage('Notifications mises à jour');
+        if (newNotificationsData.isNotEmpty) {
+          await _mergeNewNotifications(newNotificationsData.cast<Map<String, dynamic>>(), setState);
+        }
       } else {
         setState(() {
           _error = result['message'] ?? 'Erreur lors du rafraîchissement';
@@ -166,28 +147,27 @@ class NotificationsController {
   /// Marque une notification comme lue
   Future<void> markAsRead(String notificationId, Function(void Function()) setState) async {
     try {
-      final index = _notifications.indexWhere((n) => n.id == notificationId);
+      final index = _notifications.indexWhere((n) => n['id'] == notificationId);
       if (index == -1) return;
 
       // Marquer localement
       setState(() {
-        _notifications[index] = _notifications[index].markAsRead();
-        _updateStats();
+        _notifications[index]['is_read'] = true;
       });
 
-      // Sauvegarder dans le cache
-      await _saveToCache();
+      // Sauvegarder immédiatement
+      await _saveToLocal();
 
-      // Notifier le serveur (sans attendre pour ne pas bloquer l'UI)
+      // Notifier serveur en arrière-plan
       _notificationService.markAsRead(notificationId).catchError((e) {
-        debugPrint('Erreur lors du marquage serveur: $e');
+        debugPrint('Erreur marquage serveur: $e');
       });
     } catch (e) {
-      debugPrint('Erreur lors du marquage comme lu: $e');
+      debugPrint('Erreur marquage local: $e');
     }
   }
 
-  /// Marque toutes les notifications comme lues
+  /// Marque toutes comme lues
   Future<void> markAllAsRead(Function(void Function()) setState) async {
     if (!hasUnread) return;
 
@@ -197,132 +177,70 @@ class NotificationsController {
     });
 
     try {
-      // Marquer toutes les notifications comme lues localement
+      // Marquer toutes localement
       setState(() {
-        _notifications = _notifications.map((n) => n.markAsRead()).toList();
-        _updateStats();
+        for (var notification in _notifications) {
+          notification['is_read'] = true;
+        }
       });
 
-      // Sauvegarder dans le cache
-      await _saveToCache();
+      // Sauvegarder immédiatement
+      await _saveToLocal();
 
-      // Notifier le serveur
+      // Notifier serveur
       await _notificationService.markAllAsRead();
-
-      _showSuccessMessage('Toutes les notifications ont été marquées comme lues');
     } catch (e) {
       setState(() {
-        _error = 'Erreur lors du marquage: ${e.toString()}';
+        _error = 'Erreur marquage: ${e.toString()}';
       });
     } finally {
       setState(() => _isMarkingAllAsRead = false);
     }
   }
 
-  /// Filtre les notifications par type
-  List<AppNotification> getNotificationsByType(NotificationType type) {
-    return _notifications.where((n) => n.type == type).toList();
-  }
-
-  /// Filtre les notifications non lues
-  List<AppNotification> getUnreadNotifications() {
-    return _notifications.where((n) => !n.isRead).toList();
-  }
-
-  /// Trouve une notification par ID
-  AppNotification? getNotificationById(String id) {
-    try {
-      return _notifications.firstWhere((n) => n.id == id);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Trie les notifications par date (plus récentes en premier)
-  void _sortNotifications() {
-    _notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-  }
-
-  /// Met à jour les statistiques
-  void _updateStats() {
-    _stats = NotificationStats.fromNotifications(_notifications);
-  }
-
-  /// Sauvegarde les notifications dans le cache Hive
-  Future<void> _saveToCache() async {
+  /// Sauvegarde dans Hive
+  Future<void> _saveToLocal() async {
     try {
       if (!Hive.isBoxOpen(_hiveBoxKey)) {
         await Hive.openBox(_hiveBoxKey);
       }
 
       final box = Hive.box(_hiveBoxKey);
-
-      // Nettoyer l'ancien contenu
       await box.clear();
 
-      // Sauvegarder les nouvelles notifications
-      for (final notification in _notifications) {
-        await box.put(notification.id, notification.toHiveMap());
+      for (var notification in _notifications) {
+        await box.put(notification['id'], notification);
       }
+
+      debugPrint('${_notifications.length} notifications sauvegardées');
     } catch (e) {
-      debugPrint('Erreur lors de la sauvegarde du cache: $e');
+      debugPrint('Erreur sauvegarde: $e');
     }
   }
 
-  /// Efface le cache local
-  Future<void> clearCache() async {
-    try {
-      if (Hive.isBoxOpen(_hiveBoxKey)) {
-        final box = Hive.box(_hiveBoxKey);
-        await box.clear();
-      }
-    } catch (e) {
-      debugPrint('Erreur lors du nettoyage du cache: $e');
+  /// Trie par date (plus récentes en premier)
+  void _sortNotifications() {
+    _notifications.sort((a, b) {
+      final dateA = DateTime.parse(a['createdAt']);
+      final dateB = DateTime.parse(b['createdAt']);
+      return dateB.compareTo(dateA);
+    });
+  }
+
+  /// Callback tap notification
+  void onNotificationTapped(Map<String, dynamic> notification, Function(void Function()) setState) {
+    if (!(notification['is_read'] as bool? ?? false)) {
+      markAsRead(notification['id'], setState);
     }
   }
 
-  /// Efface l'erreur
+  /// Clear error
   void clearError(Function(void Function()) setState) {
     setState(() => _error = null);
   }
 
-  /// Affiche un message de succès (méthode placeholder)
-  void _showSuccessMessage(String message) {
-    // Cette méthode sera appelée par l'UI pour afficher le message
-    debugPrint('SUCCESS: $message');
-  }
-
-  /// Callback appelé quand une notification est tapée
-  void onNotificationTapped(AppNotification notification, Function(void Function()) setState) {
-    if (!notification.isRead) {
-      markAsRead(notification.id, setState);
-    }
-  }
-
-  /// Nettoie les ressources du controller
+  /// Dispose
   void dispose() {
-    // Rien à nettoyer pour l'instant
-  }
-
-  /// Obtient le nombre de notifications par type pour les statistiques
-  Map<String, int> getTypeStats() {
-    final stats = <String, int>{};
-    for (final notification in _notifications) {
-      final typeLabel = notification.type.label;
-      stats[typeLabel] = (stats[typeLabel] ?? 0) + 1;
-    }
-    return stats;
-  }
-
-  /// Vérifie si une notification est récente (moins de 24h)
-  bool isRecentNotification(AppNotification notification) {
-    final now = DateTime.now();
-    final difference = now.difference(notification.createdAt);
-    return difference.inHours < 24;
-  }
-
-  /// Obtient les notifications récentes (moins de 24h)
-  List<AppNotification> getRecentNotifications() {
-    return _notifications.where((n) => isRecentNotification(n)).toList();
+    // Rien à nettoyer
   }
 }

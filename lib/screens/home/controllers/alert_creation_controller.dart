@@ -223,43 +223,11 @@ class AlertCreationController {
     }
   }
 
-  /// Sélectionne depuis la galerie
-  // Future<void> _pickFromGallery(int index, bool isVideo, Function(void Function()) setState) async {
-  //   setState(() {
-  //     _isLoading = true;
-  //     _clearError();
-  //   });
-
-  //   try {
-  //     final media = await _alertService.pickFromGallery(isVideo: isVideo);
-  //     if (media != null) {
-  //       setState(() {
-  //         _selectedMedia[index] = media;
-  //         if (isVideo) _hasVideo = true;
-  //         _isLoading = false;
-  //       });
-  //     } else {
-  //       setState(() => _isLoading = false);
-  //     }
-  //   } catch (e) {
-  //     setState(() {
-  //       _setError(e.toString());
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
 
   /// Affiche un média
   void _viewMedia(BuildContext context, int index) {
     final media = _selectedMedia[index];
     if (media != null) {
-      // Import de la fonction depuis media_viewer_popup
-      // showMediaViewer(
-      //   context,
-      //   mediaPath: media.file.path,
-      //   isVideo: media.isVideo,
-      //   fileName: media.fileName,
-      // );
 
       // Pour l'instant, on peut juste afficher un message
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Média: ${media.fileName}')));

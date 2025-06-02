@@ -4,18 +4,42 @@ import '../../../core/constants/sizes.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/themes.dart';
 import '../../../core/utils/utils.dart';
-import '../../../data/models/notification_models.dart';
 
 /// Widget pour afficher une carte de notification individuelle
 class NotificationCard extends StatelessWidget {
-  final AppNotification notification;
+  final Map<String, dynamic> notification;
   final VoidCallback onTap;
   final bool showUnreadIndicator;
 
   const NotificationCard({super.key, required this.notification, required this.onTap, this.showUnreadIndicator = true});
 
+  /// Détermine le type de notification
+  NotificationType _getNotificationType() {
+    if (notification['type'] == 'ALERT' || notification.containsKey('alert_id')) {
+      return NotificationType.alert;
+    }
+
+    final sender = notification['sender'];
+    if (sender != null) {
+      final role = sender['role'] as String?;
+      switch (role?.toUpperCase()) {
+        case 'ADMIN':
+          return NotificationType.admin;
+        case 'RESCUE_MEMBER':
+          return NotificationType.rescueMember;
+        default:
+          return NotificationType.system;
+      }
+    }
+
+    return NotificationType.system;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final notifType = _getNotificationType();
+    final isRead = notification['is_read'] as bool? ?? false;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -25,11 +49,11 @@ class NotificationCard extends StatelessWidget {
           right: AppSizes.screenPaddingHorizontal,
         ),
         decoration: BoxDecoration(
-          color: notification.isRead ? AppColors.white : AppColors.background,
+          color: isRead ? AppColors.white : AppColors.background,
           borderRadius: BorderRadius.circular(AppSizes.radiusCard),
           border: Border.all(
-            color: notification.isRead ? AppColors.textLight.withOpacity(0.1) : notification.type.borderColor,
-            width: notification.isRead ? 1 : 1.5,
+            color: isRead ? AppColors.textLight.withOpacity(0.1) : notifType.borderColor,
+            width: isRead ? 1 : 1.5,
           ),
           boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
         ),
@@ -39,7 +63,7 @@ class NotificationCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Avatar de l'expéditeur
-              _buildSenderAvatar(),
+              _buildSenderAvatar(notifType),
 
               SizedBox(width: AppSizes.spacingMedium),
 
@@ -49,7 +73,7 @@ class NotificationCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // En-tête avec nom et temps
-                    _buildHeader(),
+                    _buildHeader(notifType),
 
                     SizedBox(height: AppSizes.spacingSmall),
 
@@ -57,16 +81,13 @@ class NotificationCard extends StatelessWidget {
                     _buildMessage(),
 
                     // Badge d'alerte si applicable
-                    if (notification.hasAlert) ...[SizedBox(height: AppSizes.spacingSmall), _buildAlertBadge()],
+                    if (notification.containsKey('alert_id')) ...[SizedBox(height: AppSizes.spacingSmall), _buildAlertBadge()],
                   ],
                 ),
               ),
 
               // Indicateur de lecture
-              if (showUnreadIndicator && !notification.isRead) ...[
-                SizedBox(width: AppSizes.spacingMedium),
-                _buildUnreadIndicator(),
-              ],
+              if (showUnreadIndicator && !isRead) ...[SizedBox(width: AppSizes.spacingMedium), _buildUnreadIndicator()],
             ],
           ),
         ),
@@ -75,29 +96,33 @@ class NotificationCard extends StatelessWidget {
   }
 
   /// Construit l'avatar de l'expéditeur
-  Widget _buildSenderAvatar() {
+  Widget _buildSenderAvatar(NotificationType notifType) {
+    final sender = notification['sender'];
+
     return Container(
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: notification.type.lightColor,
+        color: notifType.lightColor,
         shape: BoxShape.circle,
-        border: Border.all(color: notification.type.borderColor, width: 1),
+        border: Border.all(color: notifType.borderColor, width: 1),
       ),
       child:
-          notification.sender.initials.isNotEmpty
+          sender != null && sender['first_name'] != null && sender['last_name'] != null
               ? Center(
                 child: Text(
-                  notification.sender.initials,
-                  style: AppTextStyles.bodyMedium.copyWith(color: notification.type.color, fontWeight: FontWeight.bold),
+                  "${sender['first_name'][0]}${sender['last_name'][0]}".toUpperCase(),
+                  style: AppTextStyles.bodyMedium.copyWith(color: notifType.color, fontWeight: FontWeight.bold),
                 ),
               )
-              : Icon(notification.type.icon, color: notification.type.color, size: AppSizes.iconMedium),
+              : Icon(notifType.icon, color: notifType.color, size: AppSizes.iconMedium),
     );
   }
 
   /// Construit l'en-tête avec le nom de l'expéditeur et l'heure
-  Widget _buildHeader() {
+  Widget _buildHeader(NotificationType notifType) {
+    final sender = notification['sender'];
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,28 +133,28 @@ class NotificationCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                notification.sender.fullName.isNotEmpty ? notification.sender.fullName : notification.type.label,
+                sender != null ? "${sender['first_name']} ${sender['last_name']}" : notifType.label,
                 style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: AppColors.text),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              if (notification.sender.fullName.isNotEmpty) ...[
+              if (sender != null) ...[
                 SizedBox(height: AppSizes.spacingXSmall),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: AppSizes.spacingSmall, vertical: AppSizes.spacingXSmall),
                   decoration: BoxDecoration(
-                    color: notification.type.lightColor,
+                    color: notifType.lightColor,
                     borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-                    border: Border.all(color: notification.type.borderColor, width: 1),
+                    border: Border.all(color: notifType.borderColor, width: 1),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(notification.type.icon, size: AppSizes.iconSmall, color: notification.type.color),
+                      Icon(notifType.icon, size: AppSizes.iconSmall, color: notifType.color),
                       SizedBox(width: AppSizes.spacingXSmall),
                       Text(
-                        notification.type.label,
-                        style: AppTextStyles.caption.copyWith(color: notification.type.color, fontWeight: FontWeight.w600),
+                        notifType.label,
+                        style: AppTextStyles.caption.copyWith(color: notifType.color, fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -140,18 +165,17 @@ class NotificationCard extends StatelessWidget {
         ),
 
         // Heure de la notification
-        Text(
-          Utils.timeAgo(notification.createdAt.toIso8601String()),
-          style: AppTextStyles.caption.copyWith(color: AppColors.textLight),
-        ),
+        Text(Utils.timeAgo(notification['createdAt']), style: AppTextStyles.caption.copyWith(color: AppColors.textLight)),
       ],
     );
   }
 
   /// Construit le message de la notification
   Widget _buildMessage() {
+    final message = notification['message'] as String;
+
     return Text(
-      notification.previewMessage,
+      message.length > 80 ? '${message.substring(0, 80)}...' : message,
       style: AppTextStyles.bodyMedium.copyWith(color: AppColors.text, height: 1.4),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
@@ -192,141 +216,20 @@ class NotificationCard extends StatelessWidget {
   }
 }
 
-/// Widget pour afficher l'état vide des notifications
-class EmptyNotificationsWidget extends StatelessWidget {
-  final VoidCallback? onRefresh;
+/// Enum pour les types de notifications
+enum NotificationType {
+  admin('ADMIN', 'Administrateur', Icons.admin_panel_settings, Colors.blue),
+  rescueMember('RESCUE_MEMBER', 'Secouriste', Icons.local_hospital, Color(0xFFFF3333)),
+  system('SYSTEM', 'Système', Icons.settings, Colors.grey),
+  alert('ALERT', 'Alerte', Icons.warning, Colors.orange);
 
-  const EmptyNotificationsWidget({super.key, this.onRefresh});
+  const NotificationType(this.value, this.label, this.icon, this.color);
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: AppEdgeInsets.large,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(color: AppColors.textLight.withOpacity(0.1), shape: BoxShape.circle),
-              child: Icon(Icons.notifications_off_outlined, size: AppSizes.iconLarge, color: AppColors.textLight),
-            ),
+  final String value;
+  final String label;
+  final IconData icon;
+  final Color color;
 
-            SizedBox(height: AppSizes.spacingLarge),
-
-            Text('Aucune notification', style: AppTextStyles.heading3.copyWith(color: AppColors.textLight)),
-
-            SizedBox(height: AppSizes.spacingSmall),
-
-            Text(
-              'Vous n\'avez pas encore reçu de notifications.',
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textLight),
-              textAlign: TextAlign.center,
-            ),
-
-            if (onRefresh != null) ...[
-              SizedBox(height: AppSizes.spacingLarge),
-
-              ElevatedButton.icon(
-                onPressed: onRefresh,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                  padding: EdgeInsets.symmetric(horizontal: AppSizes.spacingLarge, vertical: AppSizes.spacingMedium),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusButton)),
-                ),
-                icon: Icon(Icons.refresh, size: AppSizes.iconMedium, color: AppColors.background,),
-                label: Text('Actualiser', style: AppTextStyles.buttonText),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Widget pour les statistiques de notifications en en-tête
-class NotificationStatsHeader extends StatelessWidget {
-  final NotificationStats stats;
-  final VoidCallback? onMarkAllAsRead;
-  final bool isMarkingAllAsRead;
-
-  const NotificationStatsHeader({super.key, required this.stats, this.onMarkAllAsRead, this.isMarkingAllAsRead = false});
-
-  @override
-  Widget build(BuildContext context) {
-    if (stats.total == 0) return const SizedBox.shrink();
-
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: AppSizes.screenPaddingHorizontal, vertical: AppSizes.spacingMedium),
-      padding: EdgeInsets.all(AppSizes.spacingMedium),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(AppSizes.radiusCard),
-        border: Border.all(color: AppColors.primary.withOpacity(0.1), width: 1),
-      ),
-      child: Row(
-        children: [
-          // Statistiques
-          Expanded(
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(AppSizes.spacingSmall),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-                  ),
-                  child: Icon(Icons.notifications, color: AppColors.primary, size: AppSizes.iconMedium),
-                ),
-
-                SizedBox(width: AppSizes.spacingMedium),
-
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${stats.total} notification${stats.total > 1 ? 's' : ''}',
-                      style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
-                    ),
-                    if (stats.hasUnread)
-                      Text(
-                        '${stats.unread} non lue${stats.unread > 1 ? 's' : ''}',
-                        style: AppTextStyles.bodySmall.copyWith(color: AppColors.primary),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // Bouton marquer tout comme lu
-          if (stats.hasUnread && onMarkAllAsRead != null)
-            ElevatedButton.icon(
-              onPressed: isMarkingAllAsRead ? null : onMarkAllAsRead,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.white,
-                padding: EdgeInsets.symmetric(horizontal: AppSizes.spacingMedium, vertical: AppSizes.spacingSmall),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusButton)),
-              ),
-              icon:
-                  isMarkingAllAsRead
-                      ? SizedBox(
-                        width: AppSizes.iconSmall,
-                        height: AppSizes.iconSmall,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.white),
-                      )
-                      : Icon(Icons.mark_email_read, size: AppSizes.iconSmall, color: AppColors.background,),
-              label: Text(
-                'Tout lire',
-                style: AppTextStyles.caption.copyWith(color: AppColors.white, fontWeight: FontWeight.w600),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
+  Color get lightColor => color.withOpacity(0.1);
+  Color get borderColor => color.withOpacity(0.3);
 }

@@ -49,11 +49,6 @@ class NotificationSender {
     );
   }
 
-  /// Convertit en JSON
-  Map<String, dynamic> toJson() {
-    return {'id': id, 'first_name': firstName, 'last_name': lastName, 'role': role};
-  }
-
   /// Convertit pour Hive
   Map<String, dynamic> toHiveMap() {
     return {'id': id, 'firstName': firstName, 'lastName': lastName, 'role': role};
@@ -114,19 +109,6 @@ class AppNotification {
       alertId: json['alert_id']?.toString(),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
-  }
-
-  /// Convertit en JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'message': message,
-      'sender': sender.toJson(),
-      'createdAt': createdAt.toIso8601String(),
-      'is_read': isRead,
-      'alert_id': alertId,
-      'metadata': metadata,
-    };
   }
 
   /// Convertit pour Hive
@@ -246,34 +228,5 @@ class NotificationStats {
   double get readPercentage {
     if (total == 0) return 0.0;
     return (total - unread) / total;
-  }
-}
-
-/// Exception personnalisée pour les notifications
-class NotificationException implements Exception {
-  final String message;
-  final NotificationErrorType type;
-
-  const NotificationException(this.message, this.type);
-
-  @override
-  String toString() => 'NotificationException: $message';
-}
-
-/// Types d'erreurs pour les notifications
-enum NotificationErrorType { networkError, cacheError, validationError, unknownError }
-
-extension NotificationErrorTypeExtension on NotificationErrorType {
-  String get message {
-    switch (this) {
-      case NotificationErrorType.networkError:
-        return 'Erreur de connexion réseau';
-      case NotificationErrorType.cacheError:
-        return 'Erreur de cache local';
-      case NotificationErrorType.validationError:
-        return 'Données de notification invalides';
-      case NotificationErrorType.unknownError:
-        return 'Erreur inconnue';
-    }
   }
 }
