@@ -75,10 +75,6 @@ class HomeContentState extends State<HomeContent> {
     await _homeController.initialize(setState);
   }
 
-  /// Démarre le showcase manuellement (pour les tests ou depuis les paramètres)
-  void _startShowcaseManually() {
-    ShowCaseWidget.of(context).startShowCase([_headerKey, _alertGridKey, _myAlertsKey, _emergencyKey]);
-  }
 
   /// Rafraîchit toutes les données
   Future<void> _refreshData() async {
@@ -95,18 +91,6 @@ class HomeContentState extends State<HomeContent> {
     Routes.navigateTo(Routes.notifications);
   }
 
-  /// Navigue vers toutes les alertes
-  void _navigateToAllAlerts() {
-    // TODO: Implémenter la navigation vers toutes les alertes
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Navigation vers toutes les alertes - À implémenter')));
-  }
-
-  /// Navigue vers les détails d'une alerte
-  void _navigateToAlertDetails(String alertId) {
-    // TODO: Implémenter la navigation vers les détails d'alerte
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Navigation vers alerte $alertId - À implémenter')));
-  }
-
   /// Navigue vers les numéros d'urgence
   void _navigateToEmergency() {
     Routes.navigateTo(Routes.emergency);
@@ -117,15 +101,6 @@ class HomeContentState extends State<HomeContent> {
     _scaffoldKey.currentState?.openDrawer();
   }
 
-  /// Callback appelé après l'envoi réussi d'une alerte
-  void _onAlertSent() {
-    // Rafraîchir les données pour inclure la nouvelle alerte
-    _refreshData();
-
-    // Optionnel : Afficher un message de confirmation supplémentaire
-    // ou effectuer d'autres actions (analytics, notifications, etc.)
-    debugPrint('Alerte envoyée - Données rafraîchies');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -243,8 +218,6 @@ class HomeContentState extends State<HomeContent> {
             onTargetClick: () => ShowCaseWidget.of(context).next(),
             child: LatestAlertWidget(
               latestAlert: _homeController.latestAlert,
-              onViewAllAlerts: _navigateToAllAlerts,
-              onAlertTap: _navigateToAlertDetails,
             ),
           ),
 
@@ -284,10 +257,6 @@ class HomeContentState extends State<HomeContent> {
                   ),
                   color: AppColors.primary.withOpacity(0.1), // Fallback color
                   borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppSizes.radiusSmall)),
-                  child: Icon(Icons.lightbulb_outline, color: AppColors.primary, size: AppSizes.iconLarge),
                 ),
               ),
               SizedBox(width: AppSizes.spacingMedium),

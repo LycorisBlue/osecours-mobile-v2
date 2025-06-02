@@ -319,48 +319,4 @@ class AlertService {
       throw Exception('Impossible d\'enregistrer une vidéo: $e');
     }
   }
-
-  /// Sélectionne un média depuis la galerie
-  Future<MediaFile?> pickFromGallery({bool isVideo = false}) async {
-    try {
-      if (isVideo) {
-        final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
-        if (video != null) {
-          final extension = video.path.split('.').last.toLowerCase();
-
-          if (!MediaFile.isFormatAccepted(extension, true)) {
-            throw Exception('Format non supporté. Formats acceptés : MP4, MOV');
-          }
-
-          final mediaFile = MediaFile(file: File(video.path), isVideo: true, mimeType: MediaFile.getMimeType(extension, true));
-
-          if (!await mediaFile.isValidSize()) {
-            throw Exception('Vidéo trop volumineuse (max 10MB)');
-          }
-
-          return mediaFile;
-        }
-      } else {
-        final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-        if (image != null) {
-          final extension = image.path.split('.').last.toLowerCase();
-
-          if (!MediaFile.isFormatAccepted(extension, false)) {
-            throw Exception('Format non supporté. Formats acceptés : JPG, JPEG, PNG');
-          }
-
-          final mediaFile = MediaFile(file: File(image.path), isVideo: false, mimeType: MediaFile.getMimeType(extension, false));
-
-          if (!await mediaFile.isValidSize()) {
-            throw Exception('Image trop volumineuse (max 5MB)');
-          }
-
-          return mediaFile;
-        }
-      }
-      return null;
-    } catch (e) {
-      throw Exception('Impossible de sélectionner le média: $e');
-    }
-  }
 }

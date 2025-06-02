@@ -132,33 +132,3 @@ class MediaFile {
   }
 }
 
-/// Exception personnalisée pour les erreurs de média
-class MediaException implements Exception {
-  final String message;
-  final MediaErrorType type;
-
-  const MediaException(this.message, this.type);
-
-  @override
-  String toString() => 'MediaException: $message';
-}
-
-/// Types d'erreurs pour les médias
-enum MediaErrorType { invalidFormat, fileTooLarge, fileNotFound, permissionDenied, unknown }
-
-extension MediaErrorTypeExtension on MediaErrorType {
-  String get message {
-    switch (this) {
-      case MediaErrorType.invalidFormat:
-        return 'Format de fichier non supporté';
-      case MediaErrorType.fileTooLarge:
-        return 'Fichier trop volumineux';
-      case MediaErrorType.fileNotFound:
-        return 'Fichier introuvable';
-      case MediaErrorType.permissionDenied:
-        return 'Permission refusée';
-      case MediaErrorType.unknown:
-        return 'Erreur inconnue';
-    }
-  }
-}

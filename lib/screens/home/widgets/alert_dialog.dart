@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/sizes.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/themes.dart';
-import '../../../core/utils/media_viewer_popup.dart';
 import '../../../services/alert_service.dart';
 import '../controllers/alert_creation_controller.dart';
 
@@ -131,7 +130,7 @@ class _AlertDialogState extends State<AlertDialog> {
         ClipRRect(
           borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
           child: GestureDetector(
-            onTap: () => _viewMedia(media),
+            onTap: null,
             child: Container(
               width: double.infinity,
               height: double.infinity,
@@ -239,9 +238,6 @@ class _AlertDialogState extends State<AlertDialog> {
     );
   }
 
-  void _viewMedia(MediaFile media) {
-    showMediaViewer(context, mediaPath: media.file.path, isVideo: media.isVideo, fileName: media.fileName);
-  }
 
   Future<void> _handleSubmit() async {
     final result = await _controller.submitAlert(widget.alertType, setState);

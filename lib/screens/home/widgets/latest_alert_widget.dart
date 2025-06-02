@@ -9,10 +9,8 @@ import '../../alerts/widgets/alert_detail_bottom_sheet.dart';
 
 class LatestAlertWidget extends StatelessWidget {
   final Map<String, dynamic>? latestAlert;
-  final VoidCallback onViewAllAlerts;
-  final Function(String) onAlertTap;
 
-  LatestAlertWidget({super.key, this.latestAlert, required this.onViewAllAlerts, required this.onAlertTap});
+  LatestAlertWidget({super.key, this.latestAlert,});
 
   @override
   Widget build(BuildContext context) {
