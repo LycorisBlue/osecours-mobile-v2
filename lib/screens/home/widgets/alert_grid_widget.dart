@@ -56,7 +56,7 @@ class AlertGridWidget extends StatelessWidget {
       ),
       _AlertTypeConfig(type: AlertType.inondations, title: 'Inondations', color: const Color(0xFF189FFF), icon: Icons.water),
       _AlertTypeConfig(type: AlertType.malaises, title: 'Malaises', color: const Color(0xFFFF6933), icon: Icons.medical_services),
-      _AlertTypeConfig(type: AlertType.noyade, title: 'Noyade', color: const Color(0xFF43BE33), icon: Icons.pool),
+      _AlertTypeConfig(type: AlertType.noyade, title: 'Agressions', color: const Color(0xFF43BE33), icon: Icons.crisis_alert),
       _AlertTypeConfig(type: AlertType.autre, title: 'Autre', color: const Color(0xFF717171), icon: Icons.more_horiz),
     ];
 

@@ -1,6 +1,7 @@
 // lib/screens/emergency/index.dart
 import 'package:flutter/material.dart';
 import 'package:osecours/core/constants/colors.dart';
+import 'package:osecours/services/navigation_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../data/emergency_data.dart';
@@ -23,38 +24,49 @@ class EmergencyScreen extends StatelessWidget {
         leading: IconButton(icon: const Icon(Icons.arrow_back, color: AppColors.text), onPressed: () => Navigator.pop(context)),
         foregroundColor: AppColors.text,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Image d'en-tête
-          ClipRRect(
-            borderRadius: BorderRadius.zero,
-            child: Image.asset(
-              'assets/pictures/pexels-shvetsa-5965109.jpg', // Assurez-vous que cette image existe
-              fit: BoxFit.cover,
-              height: 200,
-              errorBuilder: (context, error, stackTrace) {
-                // Fallback si l'image n'existe pas
-                return Container(
-                  height: 200,
-                  color: Colors.grey[300],
-                  child: const Center(child: Icon(Icons.image_not_supported, size: 48, color: Colors.grey)),
-                );
-              },
+      body: GestureDetector(
+        onHorizontalDragEnd: (details) {
+          // Si l'utilisateur glisse de gauche à droite (vitesse positive en x)
+          if (details.primaryVelocity! > 0) {
+            // Vérifier si nous pouvons retourner en arrière
+            if (Navigator.of(context).canPop()) {
+              Routes.goBack();
+            }
+          }
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Image d'en-tête
+            ClipRRect(
+              borderRadius: BorderRadius.zero,
+              child: Image.asset(
+                'assets/pictures/pexels-shvetsa-5965109.jpg', // Assurez-vous que cette image existe
+                fit: BoxFit.cover,
+                height: 200,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback si l'image n'existe pas
+                  return Container(
+                    height: 200,
+                    color: Colors.grey[300],
+                    child: const Center(child: Icon(Icons.image_not_supported, size: 48, color: Colors.grey)),
+                  );
+                },
+              ),
             ),
-          ),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              itemCount: EmergencyData.emergencyNumbers.length,
-              separatorBuilder: (context, index) => const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16),
-              itemBuilder: (context, index) {
-                final emergency = EmergencyData.emergencyNumbers[index];
-                return _buildEmergencyItem(context, emergency: emergency);
-              },
+            Expanded(
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                itemCount: EmergencyData.emergencyNumbers.length,
+                separatorBuilder: (context, index) => const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16),
+                itemBuilder: (context, index) {
+                  final emergency = EmergencyData.emergencyNumbers[index];
+                  return _buildEmergencyItem(context, emergency: emergency);
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

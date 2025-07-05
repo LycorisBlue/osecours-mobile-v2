@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:osecours/screens/alerts/index.dart';
 import 'package:osecours/screens/emergency/index.dart';
+import 'package:osecours/screens/flood_alerts/index.dart';
 import 'package:osecours/screens/login/index.dart';
 import 'package:osecours/screens/notifications/index.dart';
 import 'package:osecours/screens/otp/index.dart';
@@ -25,6 +26,7 @@ class Routes {
   static const String profile = '/profile';
   static const String safeContacts = '/safe-contacts';
   static const String notifications = '/notifications';
+  static const String floodAlerts = '/flood-alerts';
 
 
   static Map<String, Widget Function(BuildContext)> get routes => {
@@ -39,6 +41,7 @@ class Routes {
     profile: (context) => const ProfileScreen(),
     safeContacts: (context) => const SafeContactsScreen(),
     notifications: (context) => const NotificationsScreen(),
+    floodAlerts: (context) => const FloodAlertsScreen(),
   };
 
   // Navigation standard avec animation personnalisée

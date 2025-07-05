@@ -104,47 +104,55 @@ class HomeContentState extends State<HomeContent> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: AppColors.white,
-      drawer: AppDrawer(),
-      body: RefreshIndicator(
-        key: _refreshIndicatorKey,
-        onRefresh: _refreshData,
-        child: SafeArea(
-          child:
-              _homeController.isLoading && _homeController.currentAddress == 'Chargement...'
-                  ? _buildLoadingState()
-                  : _buildContent(),
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        // Si l'utilisateur glisse de gauche à droite, ouvre le menu
+        if (details.primaryVelocity! > 0) {
+          _scaffoldKey.currentState?.openDrawer();
+        }
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: AppColors.white,
+        drawer: AppDrawer(),
+        body: RefreshIndicator(
+          key: _refreshIndicatorKey,
+          onRefresh: _refreshData,
+          child: SafeArea(
+            child:
+                _homeController.isLoading && _homeController.currentAddress == 'Chargement...'
+                    ? _buildLoadingState()
+                    : _buildContent(),
+          ),
         ),
-      ),
-      bottomNavigationBar: Showcase(
-        key: _emergencyKey,
-        description: 'Accédez rapidement aux numéros d\'urgence',
-        tooltipBackgroundColor: AppColors.primary,
-        textColor: Colors.white,
-        targetPadding: const EdgeInsets.all(5),
-        disposeOnTap: true,
-        onTargetClick: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => Routes.routes[Routes.emergency]!(context)));
-          ShowCaseWidget.of(context).next();
-        },
-        child: GestureDetector(
-          onTap: _navigateToEmergency,
-          child: Container(
-            padding: EdgeInsets.all(AppSizes.spacingMedium),
-            color: AppColors.primary,
-            child: SafeArea(
-              child: Row(
-                children: [
-                  Icon(Icons.phone, color: AppColors.white),
-                  SizedBox(width: 10),
-                  Text(
-                    "Numéro d'urgences",
-                    style: TextStyle(fontSize: AppSizes.buttonText, fontWeight: FontWeight.w600, color: AppColors.white),
-                    textAlign: TextAlign.start,
-                  ),
-                ],
+        bottomNavigationBar: Showcase(
+          key: _emergencyKey,
+          description: 'Accédez rapidement aux numéros d\'urgence',
+          tooltipBackgroundColor: AppColors.primary,
+          textColor: Colors.white,
+          targetPadding: const EdgeInsets.all(5),
+          disposeOnTap: true,
+          onTargetClick: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Routes.routes[Routes.emergency]!(context)));
+            ShowCaseWidget.of(context).next();
+          },
+          child: GestureDetector(
+            onTap: _navigateToEmergency,
+            child: Container(
+              padding: EdgeInsets.all(AppSizes.spacingMedium),
+              color: AppColors.primary,
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Icon(Icons.phone, color: AppColors.white),
+                    SizedBox(width: 10),
+                    Text(
+                      "Numéro d'urgences",
+                      style: TextStyle(fontSize: AppSizes.buttonText, fontWeight: FontWeight.w600, color: AppColors.white),
+                      textAlign: TextAlign.start,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

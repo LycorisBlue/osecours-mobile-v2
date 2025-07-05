@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:osecours/core/constants/colors.dart';
+import 'package:osecours/services/navigation_service.dart';
 import '../../data/models/safe_contact_models.dart';
 import 'controller.dart';
 import 'add_contacts_screen.dart';
@@ -155,100 +156,111 @@ class _SafeContactsScreenState extends State<SafeContactsScreen> {
     final contacts = _controller.contacts;
     final canAddMore = contacts.length < 5;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
+    return GestureDetector(
+            onHorizontalDragEnd: (details) {
+        // Si l'utilisateur glisse de gauche à droite (vitesse positive en x)
+        if (details.primaryVelocity! > 0) {
+          // Vérifier si nous pouvons retourner en arrière
+          if (Navigator.of(context).canPop()) {
+            Routes.goBack();
+          }
+        }
+      },
+      child: Scaffold(
         backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black), onPressed: () => Navigator.pop(context)),
-        title: const Text(
-          'Numéros "Safe"',
-          style: TextStyle(color: Colors.black, fontSize: 20, fontFamily: "Poppins", fontWeight: FontWeight.bold),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.black), onPressed: () => Navigator.pop(context)),
+          title: const Text(
+            'Numéros "Safe"',
+            style: TextStyle(color: Colors.black, fontSize: 20, fontFamily: "Poppins", fontWeight: FontWeight.bold),
+          ),
         ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Section Ajouter (conditionnelle)
-            if (canAddMore)
-              InkWell(
-                onTap: _navigateToAddContacts,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[200]!, width: 1))),
-                  child: const Row(
-                    children: [
-                      Text('Ajouter un nouveau...', style: TextStyle(fontFamily: "Poppins", color: Colors.red, fontSize: 14)),
-                    ],
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Section Ajouter (conditionnelle)
+              if (canAddMore)
+                InkWell(
+                  onTap: _navigateToAddContacts,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[200]!, width: 1))),
+                    child: const Row(
+                      children: [
+                        Text('Ajouter un nouveau...', style: TextStyle(fontFamily: "Poppins", color: Colors.red, fontSize: 14)),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-
-            // Liste des contacts safe
-            if (contacts.isNotEmpty)
-              Column(
-                children: [
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: contacts.length,
-                    itemBuilder: (context, index) {
-                      final contact = contacts[index];
-                      return _buildSafeContactTile(contact);
-                    },
-                  ),
-                ],
-              ),
-
-            SizedBox(height: 30),
-
-            // Message si aucun contact
-            if (contacts.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Center(
-                  child: Text(
-                    'Aucun numéro "Safe" enregistré',
-                    style: TextStyle(fontSize: 14, fontFamily: "Poppins", color: Colors.grey),
+      
+              // Liste des contacts safe
+              if (contacts.isNotEmpty)
+                Column(
+                  children: [
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: contacts.length,
+                      itemBuilder: (context, index) {
+                        final contact = contacts[index];
+                        return _buildSafeContactTile(contact);
+                      },
+                    ),
+                  ],
+                ),
+      
+              SizedBox(height: 30),
+      
+              // Message si aucun contact
+              if (contacts.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(
+                    child: Text(
+                      'Aucun numéro "Safe" enregistré',
+                      style: TextStyle(fontSize: 14, fontFamily: "Poppins", color: Colors.grey),
+                    ),
                   ),
                 ),
+      
+              // Texte explicatif
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Text(
+                  'Tous les contacts ajoutés recevront un message les informant que vous êtes en sécurité. Le nombre maximal de contacts est limité à 5.',
+                  style: TextStyle(fontSize: 12, fontFamily: "Poppins", color: Colors.grey[600]),
+                ),
               ),
-
-            // Texte explicatif
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Text(
-                'Tous les contacts ajoutés recevront un message les informant que vous êtes en sécurité. Le nombre maximal de contacts est limité à 5.',
-                style: TextStyle(fontSize: 12, fontFamily: "Poppins", color: Colors.grey[600]),
+      
+              // Option de partage de position
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Partager sa position à ces proches',
+                      style: TextStyle(fontSize: 14, fontFamily: "Poppins", color: Colors.black),
+                    ),
+                    CupertinoSwitch(
+                      value: _shareLocation,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _shareLocation = value;
+                        });
+                        _controller.updateLocationSharing(value, setState);
+                      },
+                      activeColor: const Color(0xFF4CD964),
+                    ),
+                  ],
+                ),
               ),
-            ),
-
-            // Option de partage de position
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Partager sa position à ces proches',
-                    style: TextStyle(fontSize: 14, fontFamily: "Poppins", color: Colors.black),
-                  ),
-                  CupertinoSwitch(
-                    value: _shareLocation,
-                    onChanged: (bool value) {
-                      setState(() {
-                        _shareLocation = value;
-                      });
-                      _controller.updateLocationSharing(value, setState);
-                    },
-                    activeColor: const Color(0xFF4CD964),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

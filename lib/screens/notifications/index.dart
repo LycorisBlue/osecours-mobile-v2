@@ -1,6 +1,7 @@
 // lib/screens/notifications/index.dart
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:osecours/services/navigation_service.dart';
 import '../../core/constants/sizes.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/themes.dart';
@@ -351,51 +352,62 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       });
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        // Si l'utilisateur glisse de gauche à droite (vitesse positive en x)
+        if (details.primaryVelocity! > 0) {
+          // Vérifier si nous pouvons retourner en arrière
+          if (Navigator.of(context).canPop()) {
+            Routes.goBack();
+          }
+        }
+      },
+      child: Scaffold(
         backgroundColor: AppColors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.text, size: AppSizes.iconMedium),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text('Notifications', style: AppTextStyles.heading3),
-        centerTitle: true,
-        actions: [
-          // Bouton marquer tout comme lu avec ValueListenableBuilder
-          FutureBuilder(
-            future: _initializeHive(),
-            builder: (context, snapshot) {
-              if (!Hive.isBoxOpen('notifications')) {
-                return IconButton(onPressed: null, icon: Icon(Icons.mark_email_read_outlined), color: AppColors.textLight);
-              }
-
-              return ValueListenableBuilder(
-                valueListenable: Hive.box('notifications').listenable(),
-                builder: (context, Box box, _) {
-                  final hasUnread = _controller.hasUnread;
-
-                  return IconButton(
-                    onPressed: hasUnread && !_controller.isMarkingAllAsRead ? _handleMarkAllAsRead : null,
-                    icon:
-                        _controller.isMarkingAllAsRead
-                            ? SizedBox(
-                              width: AppSizes.iconMedium,
-                              height: AppSizes.iconMedium,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
-                            )
-                            : Icon(Icons.mark_email_read_outlined),
-                    color: hasUnread ? AppColors.primary : AppColors.textLight,
-                    tooltip: 'Tout marquer comme lu',
-                  );
-                },
-              );
-            },
+        appBar: AppBar(
+          backgroundColor: AppColors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.text, size: AppSizes.iconMedium),
+            onPressed: () => Navigator.pop(context),
           ),
-        ],
+          title: Text('Notifications', style: AppTextStyles.heading3),
+          centerTitle: true,
+          actions: [
+            // Bouton marquer tout comme lu avec ValueListenableBuilder
+            FutureBuilder(
+              future: _initializeHive(),
+              builder: (context, snapshot) {
+                if (!Hive.isBoxOpen('notifications')) {
+                  return IconButton(onPressed: null, icon: Icon(Icons.mark_email_read_outlined), color: AppColors.textLight);
+                }
+      
+                return ValueListenableBuilder(
+                  valueListenable: Hive.box('notifications').listenable(),
+                  builder: (context, Box box, _) {
+                    final hasUnread = _controller.hasUnread;
+      
+                    return IconButton(
+                      onPressed: hasUnread && !_controller.isMarkingAllAsRead ? _handleMarkAllAsRead : null,
+                      icon:
+                          _controller.isMarkingAllAsRead
+                              ? SizedBox(
+                                width: AppSizes.iconMedium,
+                                height: AppSizes.iconMedium,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                              )
+                              : Icon(Icons.mark_email_read_outlined),
+                      color: hasUnread ? AppColors.primary : AppColors.textLight,
+                      tooltip: 'Tout marquer comme lu',
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+        body: _buildBody(),
       ),
-      body: _buildBody(),
     );
   }
 

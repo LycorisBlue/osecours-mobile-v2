@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:osecours/core/constants/colors.dart';
 import 'package:osecours/core/constants/sizes.dart';
 import 'package:osecours/core/constants/themes.dart';
+import 'package:osecours/services/navigation_service.dart';
 import 'controller.dart';
 
 /// Écran des paramètres avec liste continue
@@ -31,37 +32,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
+    return GestureDetector(
+      onHorizontalDragEnd: (details) {
+        // Si l'utilisateur glisse de gauche à droite (vitesse positive en x)
+        if (details.primaryVelocity! > 0) {
+          // Vérifier si nous pouvons retourner en arrière
+          if (Navigator.of(context).canPop()) {
+            Routes.goBack();
+          }
+        }
+        },
+      child: Scaffold(
         backgroundColor: AppColors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.text, size: AppSizes.iconMedium),
-          onPressed: () => Navigator.pop(context),
+        appBar: AppBar(
+          backgroundColor: AppColors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.text, size: AppSizes.iconMedium),
+            onPressed: () => Navigator.pop(context),
+          ),
+          title: Text('Paramètres', style: AppTextStyles.heading3),
+          centerTitle: true,
         ),
-        title: Text('Paramètres', style: AppTextStyles.heading3),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Section profil utilisateur en haut
-            _buildUserProfileSection(),
-
-            SizedBox(height: AppSizes.spacingMedium),
-
-            // Section Général
-            _buildGeneralSection(),
-
-            SizedBox(height: AppSizes.spacingLarge),
-
-            // Section Compte
-            _buildAccountSection(),
-
-            SizedBox(height: AppSizes.spacingLarge),
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Section profil utilisateur en haut
+              _buildUserProfileSection(),
+        
+              SizedBox(height: AppSizes.spacingMedium),
+        
+              // Section Général
+              _buildGeneralSection(),
+        
+              SizedBox(height: AppSizes.spacingLarge),
+        
+              // Section Compte
+              _buildAccountSection(),
+        
+              SizedBox(height: AppSizes.spacingLarge),
+            ],
+          ),
         ),
       ),
     );

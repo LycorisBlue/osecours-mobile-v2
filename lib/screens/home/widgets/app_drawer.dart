@@ -46,6 +46,14 @@ class AppDrawer extends StatelessWidget {
                     },
                   ),
                   _buildDrawerItem(
+                    icon: Icons.water_drop,
+                    text: "Alertes d'inondation",
+                    onTap: () {
+                      Navigator.pop(context);
+                      Routes.navigateTo(Routes.floodAlerts);
+                    },
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.settings,
                     text: "Paramètres",
                     onTap: () {

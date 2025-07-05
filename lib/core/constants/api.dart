@@ -115,6 +115,16 @@ abstract class ProfileEndpoints {
 }
 
 /**
+ * Endpoints relatifs aux alertes d'inondation.
+ * Contient les chemins d'accès pour la gestion des
+ * alertes d'inondation à proximité des utilisateurs.
+ */
+abstract class FloodAlertEndpoints {
+  /// Récupère les alertes d'inondation à proximité d'une position
+  static const String nearby = '/citizen/nearby-flood-alerts';
+}
+
+/**
  * Classe utilitaire pour la construction des URLs.
  * Fournit des méthodes helper pour générer les URLs
  * complètes à partir des endpoints.

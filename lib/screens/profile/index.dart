@@ -1,5 +1,6 @@
 // lib/screens/profile/index.dart
 import 'package:flutter/material.dart';
+import 'package:osecours/services/navigation_service.dart';
 import '../../core/constants/sizes.dart';
 import '../../core/constants/colors.dart';
 import '../../core/constants/themes.dart';
@@ -66,26 +67,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(
+    return GestureDetector(
+            onHorizontalDragEnd: (details) {
+        // Si l'utilisateur glisse de gauche à droite (vitesse positive en x)
+        if (details.primaryVelocity! > 0) {
+          // Vérifier si nous pouvons retourner en arrière
+          if (Navigator.of(context).canPop()) {
+            Routes.goBack();
+          }
+        }
+      },
+      child: Scaffold(
         backgroundColor: AppColors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.text, size: AppSizes.iconMedium),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text('Mon profil', style: AppTextStyles.heading3),
-        centerTitle: true,
-        actions: [
-          // Bouton de rafraîchissement
-          IconButton(
-            icon: Icon(Icons.refresh, color: AppColors.text, size: AppSizes.iconMedium),
-            onPressed: _controller.isLoading ? null : _handleRefresh,
+        appBar: AppBar(
+          backgroundColor: AppColors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: AppColors.text, size: AppSizes.iconMedium),
+            onPressed: () => Navigator.pop(context),
           ),
-        ],
+          title: Text('Mon profil', style: AppTextStyles.heading3),
+          centerTitle: true,
+          actions: [
+            // Bouton de rafraîchissement
+            IconButton(
+              icon: Icon(Icons.refresh, color: AppColors.text, size: AppSizes.iconMedium),
+              onPressed: _controller.isLoading ? null : _handleRefresh,
+            ),
+          ],
+        ),
+        body: _buildBody(),
       ),
-      body: _buildBody(),
     );
   }
 

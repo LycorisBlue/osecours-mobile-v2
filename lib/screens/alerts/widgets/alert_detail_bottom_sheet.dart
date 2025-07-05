@@ -234,7 +234,29 @@ class AlertDetailBottomSheet extends StatelessWidget {
   }
 
   /// Section médias
+  /// 
+  /// /// Section médias
   Widget _buildMediaSection(List<dynamic> media) {
+    // Debug pour voir les liens complets des images
+    print('=== DEBUG MÉDIAS ALERTE ===');
+    print('Nombre de médias: ${media.length}');
+
+    for (int i = 0; i < media.length; i++) {
+      final mediaItem = media[i];
+
+      // Les vraies clés sont : media_type et media_url (pas type et url)
+      final mediaUrl = mediaItem['media_url'] ?? '';
+      final mediaType = mediaItem['media_type']?.toString().toUpperCase() ?? 'UNKNOWN';
+      final fullUrl = '$baseUrl/$mediaUrl';
+
+      print('Média $i:');
+      print('  - Type: $mediaType');
+      print('  - URL relative: $mediaUrl');
+      print('  - URL complète: $fullUrl');
+      print('  - Objet complet: $mediaItem');
+    }
+    print('==========================');
+
     return Padding(
       padding: EdgeInsets.all(AppSizes.spacingMedium),
       child: Column(
@@ -251,17 +273,18 @@ class AlertDetailBottomSheet extends StatelessWidget {
             crossAxisSpacing: AppSizes.spacingMedium,
             children:
                 media.map((mediaItem) {
-                  final url = mediaItem['url'] ?? '';
-                  final isVideo = mediaItem['type']?.toString().toUpperCase() == 'VIDEO';
-                  return _buildMediaContainer('$baseUrl/$url', isVideo);
+                  final mediaUrl = mediaItem['media_url'] ?? ''; // Changé ici
+                  final isVideo = mediaItem['media_type']?.toString().toUpperCase() == 'VIDEO'; // Changé ici
+                  final fullUrl = '$baseUrl/$mediaUrl';
+
+                  return _buildMediaContainer(fullUrl, isVideo);
                 }).toList(),
           ),
         ],
       ),
     );
   }
-
-  /// Section boutons d'action
+/// Section boutons d'action
   Widget _buildActionSection() {
     return Padding(
       padding: EdgeInsets.all(AppSizes.spacingMedium),
