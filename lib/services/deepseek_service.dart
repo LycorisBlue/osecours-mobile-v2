@@ -1,7 +1,7 @@
+// lib/services/deepseek_service.dart
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../core/config/api_config.dart';
-import 'pharmacy_service.dart';
 
 class DeepSeekService {
   // Contexte du projet O'secours
@@ -44,9 +44,6 @@ Si une question n'est pas liée aux urgences, à la santé ou à la sécurité, 
 
   static Future<String> sendMessage(String userMessage) async {
     try {
-      // Enrichir le message avec les données des pharmacies si demandé
-      String enrichedMessage = await _enrichMessageWithPharmacies(userMessage);
-
       final response = await http.post(
         Uri.parse(ApiConfig.deepseekBaseUrl),
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${ApiConfig.deepseekApiKey}'},
@@ -54,7 +51,7 @@ Si une question n'est pas liée aux urgences, à la santé ou à la sécurité, 
           'model': ApiConfig.deepseekModel,
           'messages': [
             {'role': 'system', 'content': _projectContext},
-            {'role': 'user', 'content': enrichedMessage},
+            {'role': 'user', 'content': userMessage},
           ],
           'max_tokens': ApiConfig.maxTokens,
           'temperature': ApiConfig.temperature,
@@ -73,35 +70,6 @@ Si une question n'est pas liée aux urgences, à la santé ou à la sécurité, 
       print('Erreur lors de l\'appel à l\'API DeepSeek: $e');
       return _getFallbackResponse(userMessage);
     }
-  }
-
-  static Future<String> _enrichMessageWithPharmacies(String userMessage) async {
-    String message = userMessage.toLowerCase();
-
-    // Vérifier si la question concerne les pharmacies
-    if (message.contains('pharmacie') || message.contains('médicament') || message.contains('medicament')) {
-      try {
-        final pharmacyService = PharmacyService();
-        // Coordonnées d'Abidjan par défaut (latitude: 5.3600, longitude: -4.0083)
-        final pharmacies = await pharmacyService.getNearbyPharmacies(5.3600, -4.0083);
-
-        if (pharmacies.isNotEmpty) {
-          String pharmacyData = '\n\nDonnées des pharmacies disponibles :\n';
-          for (int i = 0; i < pharmacies.length && i < 5; i++) {
-            final pharmacy = pharmacies[i];
-            pharmacyData +=
-                '- ${pharmacy['name'] ?? 'Nom inconnu'} (${pharmacy['address'] ?? 'Adresse inconnue'}) - ${pharmacy['distance']?.toStringAsFixed(1) ?? '0.0'} km\n';
-          }
-
-          return userMessage + pharmacyData;
-        }
-      } catch (e) {
-        print('Erreur lors de la récupération des pharmacies: $e');
-        // Continuer avec le message original si l'API des pharmacies échoue
-      }
-    }
-
-    return userMessage;
   }
 
   static String _getFallbackResponse(String userMessage) {
