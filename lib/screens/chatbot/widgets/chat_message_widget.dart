@@ -5,7 +5,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/sizes.dart';
 import '../../../core/constants/themes.dart';
-import '../chatbot_screen.dart';
+import '../../../services/ai_service.dart';
 
 class ChatMessageWidget extends StatefulWidget {
   final ChatMessage message;

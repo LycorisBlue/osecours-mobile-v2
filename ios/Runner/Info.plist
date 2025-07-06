@@ -67,6 +67,8 @@
 	<!-- Permission de microphone pour les vidéos -->
 	<key>NSMicrophoneUsageDescription</key>
 	<string>O'Secours accède au microphone pour enregistrer des vidéos lors de l'envoi d'alertes d'urgence aux services de secours.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Cette application utilise la reconnaissance vocale pour vous aider</string>
 
 </dict>
 </plist>
