@@ -11,6 +11,7 @@ import 'controllers.dart';
 import 'widgets/header_widget.dart';
 import 'widgets/alert_grid_widget.dart';
 import 'widgets/latest_alert_widget.dart';
+import 'widgets/services_section_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -75,7 +76,6 @@ class HomeContentState extends State<HomeContent> {
     await _homeController.initialize(setState);
   }
 
-
   /// Rafraîchit toutes les données
   Future<void> _refreshData() async {
     await _homeController.refresh(setState);
@@ -100,7 +100,6 @@ class HomeContentState extends State<HomeContent> {
   void _openDrawer() {
     _scaffoldKey.currentState?.openDrawer();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +147,7 @@ class HomeContentState extends State<HomeContent> {
                     SizedBox(width: 10),
                     Text(
                       "Numéro d'urgences",
-                      style: TextStyle(fontSize: AppSizes.buttonText, fontWeight: FontWeight.w600, color: AppColors.white),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.white),
                       textAlign: TextAlign.start,
                     ),
                   ],
@@ -224,68 +223,16 @@ class HomeContentState extends State<HomeContent> {
             textColor: Colors.white,
             disposeOnTap: true,
             onTargetClick: () => ShowCaseWidget.of(context).next(),
-            child: LatestAlertWidget(
-              latestAlert: _homeController.latestAlert,
-            ),
+            child: LatestAlertWidget(latestAlert: _homeController.latestAlert),
           ),
 
           SizedBox(height: AppSizes.spacingXLarge),
 
-          // Card de conseil (optionnel)
-          _buildAdviceCard(),
+          // Section des services supplémentaires
+          const ServicesSectionWidget(),
 
           SizedBox(height: AppSizes.spacingXLarge),
         ],
-      ),
-    );
-  }
-
-  /// Card de conseil de la semaine
-  Widget _buildAdviceCard() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppSizes.screenPaddingHorizontal),
-      child: Card(
-        elevation: AppSizes.elevationSmall,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSizes.radiusMedium)),
-        child: Padding(
-          padding: EdgeInsets.all(AppSizes.spacingMedium),
-          child: Row(
-            children: [
-              // Image comme dans l'ancienne app
-              Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/pictures/conseil.png'),
-                    fit: BoxFit.cover,
-                    onError: (exception, stackTrace) {
-                      // Si l'image n'existe pas, on peut utiliser une couleur de fallback
-                    },
-                  ),
-                  color: AppColors.primary.withOpacity(0.1), // Fallback color
-                  borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-                ),
-              ),
-              SizedBox(width: AppSizes.spacingMedium),
-
-              // Contenu
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Conseil de la semaine", style: AppTextStyles.heading3),
-                    SizedBox(height: AppSizes.spacingSmall),
-                    Text(
-                      "Ajouter des lieux importants dans vos paramètres pour mieux réagir en cas d'urgence.",
-                      style: TextStyle(fontSize: AppSizes.bodyMedium, color: AppColors.text),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

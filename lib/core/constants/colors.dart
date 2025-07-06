@@ -20,4 +20,7 @@ abstract class AppColors {
 
   /// Couleur d'erreur - Rouge
   static const Color error = Color(0xFFD32F2F);
+
+  /// Couleur gris clair - Utilisée pour les bordures
+  static const Color lightGrey = Color(0xFFE0E0E0);
 }
