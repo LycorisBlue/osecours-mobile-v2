@@ -22,7 +22,7 @@ dependencies:
   showcaseview: ^4.0.1
   flutter_map: ^8.1.1
   flutter_contacts: ^1.1.9+2
-  gpt_markdown: ^1.1.2
+  flutter_markdown: ^0.7.7+1
 
 dev_dependencies:
   flutter_test:

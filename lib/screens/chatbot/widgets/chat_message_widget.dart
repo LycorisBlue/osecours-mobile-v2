@@ -1,7 +1,10 @@
 // lib/screens/chatbot/widgets/chat_message_widget.dart
 import 'package:flutter/material.dart';
+import 'package:markdown/markdown.dart' as md;
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/sizes.dart';
+import '../../../core/constants/themes.dart';
 import '../chatbot_screen.dart';
 
 class ChatMessageWidget extends StatefulWidget {
@@ -43,6 +46,23 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> with TickerProvid
     }
   }
 
+  /// Corrige l'encodage UTF-8 mal interprété
+  String _fixEncoding(String text) {
+    // Corrections des caractères les plus courants
+    return text
+        .replaceAll('Ã©', 'é')
+        .replaceAll('Ã¨', 'è')
+        .replaceAll('Ã ', 'à')
+        .replaceAll('Ã´', 'ô')
+        .replaceAll('Ã§', 'ç')
+        .replaceAll('Ã¹', 'ù')
+        .replaceAll('Ã«', 'ë')
+        .replaceAll('Ã¯', 'ï')
+        .replaceAll('Ã®', 'î')
+        .replaceAll('Ã¢', 'â')
+        .replaceAll('Ã', 'à'); // Fallback général
+  }
+
   @override
   void dispose() {
     _fadeController.dispose();
@@ -78,16 +98,7 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> with TickerProvid
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    widget.isTyping
-                        ? _buildTypingIndicator()
-                        : Text(
-                          widget.message.text,
-                          style: TextStyle(
-                            fontSize: AppSizes.bodyMedium,
-                            color: widget.message.isUser ? AppColors.white : AppColors.text,
-                            height: 1.4,
-                          ),
-                        ),
+                    widget.isTyping ? _buildTypingIndicator() : _buildMessageContent(),
                     if (!widget.isTyping) ...[
                       SizedBox(height: AppSizes.spacingXSmall),
                       Text(
@@ -108,6 +119,47 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> with TickerProvid
         ),
       ),
     );
+  }
+
+/// Widget pour afficher le contenu du message avec support Markdown
+  Widget _buildMessageContent() {
+    return MarkdownBody(
+      data: _fixEncoding(widget.message.text),
+      styleSheet: MarkdownStyleSheet(
+        p: _getBaseTextStyle(),
+        strong: _getBaseTextStyle().copyWith(fontWeight: FontWeight.bold),
+        em: _getBaseTextStyle().copyWith(fontStyle: FontStyle.italic),
+        h1: _getBaseTextStyle().copyWith(fontSize: AppSizes.h1, fontWeight: FontWeight.bold),
+        h2: _getBaseTextStyle().copyWith(fontSize: AppSizes.h2, fontWeight: FontWeight.bold),
+        h3: _getBaseTextStyle().copyWith(fontSize: AppSizes.h3, fontWeight: FontWeight.bold),
+        code: _getBaseTextStyle().copyWith(
+          backgroundColor: widget.message.isUser ? AppColors.white.withOpacity(0.2) : AppColors.lightGrey.withOpacity(0.5),
+          fontFamily: 'monospace',
+        ),
+        codeblockDecoration: BoxDecoration(
+          color: widget.message.isUser ? AppColors.white.withOpacity(0.1) : AppColors.lightGrey.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        listBullet: _getBaseTextStyle(),
+        blockquote: _getBaseTextStyle().copyWith(fontStyle: FontStyle.italic, color: _getTextColor().withOpacity(0.8)),
+      ),
+      selectable: true,
+      // Ajout de ces propriétés pour les caractères spéciaux
+      extensionSet: md.ExtensionSet(md.ExtensionSet.gitHubFlavored.blockSyntaxes, [
+        md.EmojiSyntax(),
+        ...md.ExtensionSet.gitHubFlavored.inlineSyntaxes,
+      ]),
+    );
+  }
+
+  /// Style de texte de base selon le type de message
+  TextStyle _getBaseTextStyle() {
+    return AppTextStyles.bodyMedium.copyWith(color: _getTextColor(), height: 1.5, fontFamily: 'Poppins');
+  }
+
+  /// Couleur du texte selon le type de message
+  Color _getTextColor() {
+    return widget.message.isUser ? AppColors.white : AppColors.text;
   }
 
   Widget _buildTypingIndicator() {
