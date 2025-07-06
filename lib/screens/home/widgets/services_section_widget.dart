@@ -40,10 +40,7 @@ class ServicesSectionWidget extends StatelessWidget {
             icon: Icons.local_hospital_outlined,
             iconColor: AppColors.primary,
             onTap: () {
-              // TODO: Naviguer vers les centres hospitaliers
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Fonctionnalité en cours de développement')));
+              Routes.navigateTo(Routes.centresHospitaliers);
             },
           ),
         ],
