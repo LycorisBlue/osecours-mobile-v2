@@ -5,6 +5,7 @@ import 'package:osecours/screens/flood_alerts/index.dart';
 import 'package:osecours/screens/login/index.dart';
 import 'package:osecours/screens/notifications/index.dart';
 import 'package:osecours/screens/otp/index.dart';
+import 'package:osecours/screens/pharmacies_garde/index.dart';
 import 'package:osecours/screens/profile/index.dart';
 import 'package:osecours/screens/registration/index.dart';
 import 'package:osecours/screens/home/index.dart';
@@ -27,7 +28,7 @@ class Routes {
   static const String safeContacts = '/safe-contacts';
   static const String notifications = '/notifications';
   static const String floodAlerts = '/flood-alerts';
-
+  static const String pharmaciesGarde = '/pharmacies-garde'; // AJOUT
 
   static Map<String, Widget Function(BuildContext)> get routes => {
     splash: (context) => const SplashScreen(),
@@ -42,6 +43,7 @@ class Routes {
     safeContacts: (context) => const SafeContactsScreen(),
     notifications: (context) => const NotificationsScreen(),
     floodAlerts: (context) => const FloodAlertsScreen(),
+    pharmaciesGarde: (context) => const PharmaciesGardeScreen(), // AJOUT
   };
 
   // Navigation standard avec animation personnalisée

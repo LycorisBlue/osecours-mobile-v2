@@ -30,10 +30,7 @@ class ServicesSectionWidget extends StatelessWidget {
             icon: Icons.local_pharmacy_outlined,
             iconColor: AppColors.primary,
             onTap: () {
-              // TODO: Naviguer vers les pharmacies de garde
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Fonctionnalité en cours de développement')));
+              Routes.navigateTo(Routes.pharmaciesGarde);
             },
           ),
           SizedBox(height: AppSizes.spacingMedium),
@@ -70,8 +67,7 @@ class ServicesSectionWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
-          border: Border.all(color: AppColors.lightGrey, width: 1),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Row(
           children: [
@@ -81,7 +77,7 @@ class ServicesSectionWidget extends StatelessWidget {
                 color: iconColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
               ),
-              child: Icon(icon, color: iconColor, size: 24),
+              child: Icon(icon, color: iconColor, size: AppSizes.iconMedium),
             ),
             SizedBox(width: AppSizes.spacingMedium),
             Expanded(
@@ -90,7 +86,7 @@ class ServicesSectionWidget extends StatelessWidget {
                 style: TextStyle(fontSize: AppSizes.bodyMedium, fontWeight: FontWeight.w600, color: AppColors.text),
               ),
             ),
-            Icon(Icons.arrow_forward_ios, color: AppColors.textLight, size: 16),
+            Icon(Icons.arrow_forward_ios, color: AppColors.textLight, size: AppSizes.iconSmall),
           ],
         ),
       ),
